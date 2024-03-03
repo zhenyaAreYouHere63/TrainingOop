@@ -4,19 +4,19 @@ import com.study.dao.program.Faculty;
 import com.study.dao.program.Group;
 import com.study.dao.program.Specialty;
 import com.study.dao.program.SubjectName;
-import java.util.HashMap;
-import java.util.List;
 
 public interface StudentService {
 
     void createNewStudent(String firstName, String lastName, Faculty faculty, Group group,
-                          Specialty specialty, List<SubjectName> attendedSubjectName);
+                             Specialty specialty);
 
-    void addStudentToCourse(SubjectName subjectName);
+    void addStudentToCourse(int studentId, SubjectName subjectName);
 
     void viewAllSubjects(int studentId);
 
-    void viewAllGrades();
+    void viewAllGrades(int studentId);
 
-    double averageGradeOfSubject();
+    double averageGradeOfSubject(int studentId, SubjectName subjectName);
+
+    void viewAllStudents();
 }

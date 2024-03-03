@@ -9,10 +9,17 @@ public enum Group {
     MIE_11(Specialty.INTERNATIONAL_ECONOMICS),
     MME_11(Specialty.MANAGEMENT_OF_ENTERPRISES),
     MEC_11(Specialty.ECONOMIC_CYBERNETICS);
-
     private final Specialty specialty;
 
     Group(Specialty specialty) {
         this.specialty = specialty;
+    }
+
+    public Specialty getSpecialty() {
+        return specialty;
+    }
+
+    public boolean isMatchingGroup(Specialty specialtyToCheck) {
+        return this.specialty == specialtyToCheck;
     }
 }

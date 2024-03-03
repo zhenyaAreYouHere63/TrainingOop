@@ -5,6 +5,10 @@ import java.util.Objects;
 
 public class Teacher {
 
+    private static int lastId = 0;
+
+    private int id;
+
     private String firstName;
 
     private String lastName;
@@ -15,6 +19,7 @@ public class Teacher {
 
     }
     public Teacher(String firstName, String lastName, SubjectName subjectName) {
+        this.id = ++lastId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.subjectName = subjectName;
@@ -42,6 +47,10 @@ public class Teacher {
 
     public void setSubjectName(SubjectName subjectName) {
         this.subjectName = subjectName;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override

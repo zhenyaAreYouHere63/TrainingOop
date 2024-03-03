@@ -1,25 +1,23 @@
 package com.study.input;
 
+import com.study.dao.collections.StudentList;
 import com.study.dao.program.Faculty;
 import com.study.dao.program.Group;
 import com.study.dao.program.Specialty;
 import com.study.dao.program.SubjectName;
 import com.study.service.StudentService;
-import com.study.service.StudentServiceImpl;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.study.service.impl.StudentServiceImpl;
 import java.util.Scanner;
 
 public class ClientStudentInput {
+    private StudentList students;
     private Scanner scanner;
     private StudentService studentService;
-
     private SubjectName subjectName;
-
-    public ClientStudentInput(Scanner scanner) {
+    public ClientStudentInput(Scanner scanner, StudentList students) {
         this.scanner = scanner;
-        this.studentService = new StudentServiceImpl();
+        this.students = students;
+        this.studentService = new StudentServiceImpl(students);
     }
 
     public void createNewStudentWithInput() {
@@ -35,18 +33,23 @@ public class ClientStudentInput {
         System.out.println("Enter specialty");
         Specialty specialty = Specialty.valueOf(scanner.nextLine());
 
+        if (!specialty.isMatchingFaculty(faculty)) {
+            System.out.println("Mistake: the specialty does not correspond to the faculty");
+            return;
+        }
+
         System.out.println("Enter group");
         Group group = Group.valueOf(scanner.nextLine());
 
-        System.out.println("Enter subject");
-        List<SubjectName> subjects = new ArrayList<>(List.of(SubjectName.valueOf(scanner.nextLine()),
-                SubjectName.valueOf(scanner.nextLine()), SubjectName.valueOf(scanner.nextLine())));
+        if (!group.isMatchingGroup(specialty)) {
+            System.out.println("Mistake: the group does not correspond to the specialty");
+            return;
+        }
 
-        studentService.createNewStudent(firstName, lastName, faculty, group, specialty, subjects);
+        studentService.createNewStudent(firstName, lastName, faculty, group, specialty);
     }
 
     public void viewAllSubject() {
-
         System.out.println("Enter id of student");
         int id = scanner.nextInt();
         studentService.viewAllSubjects(id);
@@ -54,14 +57,38 @@ public class ClientStudentInput {
     }
 
     public void viewAllGrades() {
-        studentService.viewAllGrades();
+        System.out.println("Enter id of student");
+        int id = scanner.nextInt();
+
+        studentService.viewAllGrades(id);
     }
 
     public void getAverageGradeOfStudent() {
-        studentService.averageGradeOfSubject();
+        System.out.println("Enter id of student");
+        int id = scanner.nextInt();
+
+        scanner.nextLine();
+
+        System.out.println("Enter subject name");
+        SubjectName subjectName = SubjectName.valueOf(scanner.nextLine());
+
+        double averageGradeOfSubject = studentService.averageGradeOfSubject(id, subjectName);
+        System.out.println("Average grade of subject " + subjectName + ": " + averageGradeOfSubject);
     }
 
     public void addStudentToCourse() {
-        studentService.addStudentToCourse(subjectName);
+        System.out.println("Enter id of student");
+        int id = scanner.nextInt();
+
+        scanner.nextLine();
+
+        System.out.println("Enter subject name");
+        SubjectName subjectName = SubjectName.valueOf(scanner.nextLine());
+
+        studentService.addStudentToCourse(id, subjectName);
+    }
+
+    public void viewAllStudents() {
+        studentService.viewAllStudents();
     }
 }

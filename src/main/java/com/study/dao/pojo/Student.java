@@ -4,9 +4,7 @@ import com.study.dao.program.Faculty;
 import com.study.dao.program.Group;
 import com.study.dao.program.Specialty;
 import com.study.dao.program.SubjectName;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Student {
     private static int lastId = 0;
@@ -17,17 +15,17 @@ public class Student {
     private Specialty specialty;
     private Group group;
     private List<SubjectName> attendedSubjectName;
-    private Map<SubjectName, Integer> grades;
+    private Map<SubjectName, List<Integer>> grades;
 
-    public Student(String firstName, String lastName, Faculty faculty, Specialty specialty, Group group,
-                   List<SubjectName> attendedSubjectName) {
+    public Student(String firstName, String lastName, Faculty faculty, Specialty specialty, Group group) {
         this.id = ++lastId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.faculty = faculty;
         this.specialty = specialty;
         this.group = group;
-        this.attendedSubjectName = attendedSubjectName;
+        this.attendedSubjectName = new ArrayList<>();
+        grades = new HashMap<>();
     }
 
     public Student() {
@@ -62,6 +60,15 @@ public class Student {
         return specialty;
     }
 
+
+    public Map<SubjectName, List<Integer>> getGrades() {
+        return grades;
+    }
+
+    public void setGrades(Map<SubjectName, List<Integer>> grades) {
+        this.grades = grades;
+    }
+
     public void setSpecialty(Specialty specialty) {
         this.specialty = specialty;
     }
@@ -91,12 +98,12 @@ public class Student {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Student student = (Student) o;
-        return Objects.equals(firstName, student.firstName) && Objects.equals(lastName, student.lastName) && faculty == student.faculty && specialty == student.specialty && group == student.group && Objects.equals(attendedSubjectName, student.attendedSubjectName);
+        return Objects.equals(firstName, student.firstName) && Objects.equals(lastName, student.lastName) && faculty == student.faculty && specialty == student.specialty && group == student.group;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, faculty, specialty, group, attendedSubjectName);
+        return Objects.hash(firstName, lastName, faculty, specialty, group);
     }
 
     @Override
@@ -107,7 +114,6 @@ public class Student {
                ", faculty=" + faculty +
                ", specialty=" + specialty +
                ", group=" + group +
-               ", attendedSubjectName=" + attendedSubjectName +
                '}';
     }
 }
