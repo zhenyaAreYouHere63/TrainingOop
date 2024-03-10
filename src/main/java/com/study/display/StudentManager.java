@@ -1,15 +1,15 @@
 package com.study.display;
 
-import com.study.dao.collections.StudentList;
+import com.study.dao.data.StudentList;
 import com.study.input.ClientStudentInput;
 import java.util.Scanner;
 
-public class StudentMenu {
+public class StudentManager {
     private Scanner scanner;
     private StudentList students;
     private ClientStudentInput studentInput;
 
-    public StudentMenu(Scanner scanner, StudentList students) {
+    public StudentManager(Scanner scanner, StudentList students) {
         this.scanner = scanner;
         this.students = students;
         studentInput = new ClientStudentInput(scanner, students);
@@ -48,6 +48,7 @@ public class StudentMenu {
                     break;
                 case 6:
                     studentInput.getAverageGradeOfStudent();
+                    break;
                 case 0:
                     System.out.println("Returning to main menu");
                     return;

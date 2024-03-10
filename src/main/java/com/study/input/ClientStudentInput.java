@@ -1,23 +1,18 @@
 package com.study.input;
 
-import com.study.dao.collections.StudentList;
-import com.study.dao.program.Faculty;
-import com.study.dao.program.Group;
-import com.study.dao.program.Specialty;
-import com.study.dao.program.SubjectName;
-import com.study.service.StudentService;
-import com.study.service.impl.StudentServiceImpl;
+import com.study.controller.StudentController;
+import com.study.dao.core.Subject;
+import com.study.dao.data.StudentList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientStudentInput {
-    private StudentList students;
     private Scanner scanner;
-    private StudentService studentService;
-    private SubjectName subjectName;
+    private StudentController studentController;
     public ClientStudentInput(Scanner scanner, StudentList students) {
         this.scanner = scanner;
-        this.students = students;
-        this.studentService = new StudentServiceImpl(students);
+        studentController = new StudentController(students);
     }
 
     public void createNewStudentWithInput() {
@@ -28,39 +23,32 @@ public class ClientStudentInput {
         String lastName = scanner.nextLine();
 
         System.out.println("Enter faculty");
-        Faculty faculty = Faculty.valueOf(scanner.nextLine());
+        String faculty = scanner.nextLine();
 
         System.out.println("Enter specialty");
-        Specialty specialty = Specialty.valueOf(scanner.nextLine());
-
-        if (!specialty.isMatchingFaculty(faculty)) {
-            System.out.println("Mistake: the specialty does not correspond to the faculty");
-            return;
-        }
+        String specialty = scanner.nextLine();
 
         System.out.println("Enter group");
-        Group group = Group.valueOf(scanner.nextLine());
+        String group = scanner.nextLine();
 
-        if (!group.isMatchingGroup(specialty)) {
-            System.out.println("Mistake: the group does not correspond to the specialty");
-            return;
-        }
+        System.out.println("Enter a compulsory subject or write 'done' to finish");
+        List<Subject> readCompulsorySubjects = readSubjects();
 
-        studentService.createNewStudent(firstName, lastName, faculty, group, specialty);
+        studentController.addStudent(firstName, lastName, faculty, group, specialty, readCompulsorySubjects);
     }
 
     public void viewAllSubject() {
         System.out.println("Enter id of student");
         int id = scanner.nextInt();
-        studentService.viewAllSubjects(id);
 
+        studentController.getAllSubjectList(id);
     }
 
     public void viewAllGrades() {
         System.out.println("Enter id of student");
         int id = scanner.nextInt();
 
-        studentService.viewAllGrades(id);
+        studentController.getAllGrades(id);
     }
 
     public void getAverageGradeOfStudent() {
@@ -70,10 +58,9 @@ public class ClientStudentInput {
         scanner.nextLine();
 
         System.out.println("Enter subject name");
-        SubjectName subjectName = SubjectName.valueOf(scanner.nextLine());
+        String subject = scanner.nextLine();
 
-        double averageGradeOfSubject = studentService.averageGradeOfSubject(id, subjectName);
-        System.out.println("Average grade of subject " + subjectName + ": " + averageGradeOfSubject);
+        studentController.getAverageGrade(id, subject);
     }
 
     public void addStudentToCourse() {
@@ -83,12 +70,30 @@ public class ClientStudentInput {
         scanner.nextLine();
 
         System.out.println("Enter subject name");
-        SubjectName subjectName = SubjectName.valueOf(scanner.nextLine());
+        String subjectName = scanner.nextLine();
 
-        studentService.addStudentToCourse(id, subjectName);
+        Subject subject = new Subject(subjectName);
+
+        studentController.addStudentToCourse(id, subject);
     }
 
     public void viewAllStudents() {
-        studentService.viewAllStudents();
+        studentController.getAllStudentList();
+    }
+
+    private List<Subject> readSubjects() {
+        List<Subject> subjects = new ArrayList<>();
+
+        while (true) {
+            String subjectName = scanner.nextLine();
+
+            if (subjectName.equals("done")) {
+                break;
+            }
+
+            Subject subject = new Subject(subjectName);
+            subjects.add(subject);
+        }
+        return subjects;
     }
 }

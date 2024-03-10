@@ -2,9 +2,9 @@ package com.study.service.validation;
 
 import com.study.service.exception.IncorrectIdException;
 
-public interface IdValidation {
+public interface IdValidator {
 
-    default boolean idValidation(int studentId) {
+    default boolean isIdValid(int studentId) {
         try {
             idValidatable(studentId);
             return true;

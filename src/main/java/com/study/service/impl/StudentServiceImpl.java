@@ -1,129 +1,115 @@
 package com.study.service.impl;
 
-import com.study.dao.collections.StudentList;
-import com.study.dao.pojo.Student;
-import com.study.dao.program.Faculty;
-import com.study.dao.program.Group;
-import com.study.dao.program.Specialty;
-import com.study.dao.program.SubjectName;
+import com.study.dao.core.Subject;
+import com.study.dao.data.StudentList;
+import com.study.dao.core.Student;
 import com.study.service.StudentService;
-import com.study.service.validation.IdValidation;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.study.service.exception.IncorrectIdException;
+import com.study.service.validation.IdValidator;
+import java.util.*;
 
-public class StudentServiceImpl implements StudentService, IdValidation {
+public class StudentServiceImpl implements StudentService, IdValidator {
 
     private StudentList students;
-
-    private Specialty studentSpecialty;
 
     public StudentServiceImpl(StudentList students) {
         this.students = students;
     }
 
     @Override
-    public void createNewStudent(String firstName, String lastName, Faculty faculty, Group group,
-                                 Specialty specialty) {
+    public UUID createStudent(String firstName, String lastName, String faculty, String group,
+                              String specialty, List<Subject> compulsorySubjects) {
 
-        Student newStudent = new Student(firstName, lastName, faculty, specialty, group);
-        students.students.add(newStudent);
-        System.out.println(newStudent + " successfully added");
+        Student newStudent = new Student(firstName, lastName, faculty, specialty, group, compulsorySubjects);
+        students.studentList.add(newStudent);
+        return newStudent.getUuid();
     }
 
     @Override
-    public void addStudentToCourse(int studentId, SubjectName subjectName) {
+    public List<Subject> addStudentToCourse(int studentId, Subject subject) {
+        Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-        if (idValidation(studentId)) {
-            Optional<Student> optionalStudent = students.students.stream().filter(student -> student.getId() == studentId)
-                    .findFirst();
-
-            if (optionalStudent.isPresent()) {
-                studentSpecialty = optionalStudent.get().getSpecialty();
-                SubjectName compulsorySubjectOfStudent = studentSpecialty.getCompulsorySubject();
-                if (optionalStudent.get().getAttendedSubject().size() < 3 && !compulsorySubjectOfStudent.equals(subjectName)) {
-                    optionalStudent.get().getAttendedSubject().add(subjectName);
-                } else {
-                    if (optionalStudent.get().getAttendedSubject().size() >= 3) {
-                        System.out.println("Sorry, the number of subjects has been exceeded");
-                    } else if (studentSpecialty.getCompulsorySubject().equals(subjectName)) {
-                        System.out.println("Student with id " + studentId + " is already studying this subject");
-                    }
-                }
-            } else {
-                System.out.println("Student with ID " + studentId + " not found");
-            }
+        if(!isIdValid(studentId)) {
+            throw new IncorrectIdException("Invalid student id: " + studentId);
         }
+
+        Student foundStudent = optionalStudent.orElseThrow(() ->
+                new IllegalArgumentException("Student with id " + studentId + " not found"));
+
+        List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
+
+        if (foundStudent.getOptionalSubjects().size() >= 3) {
+            throw new IllegalStateException("Sorry, the number of subjects has been exceeded");
+        }
+
+        if (compulsorySubjects.contains(subject)) {
+            throw new IllegalStateException("Student with id " + studentId + " is already studying this subject");
+        }
+
+        foundStudent.getOptionalSubjects().add(subject);
+        return foundStudent.getOptionalSubjects();
     }
 
     @Override
     public void viewAllSubjects(int studentId) {
-        if (idValidation(studentId)) {
-            students.students.stream()
-                    .filter(student -> student.getId() == studentId)
-                    .findFirst()
-                    .ifPresentOrElse(student -> {
-                                System.out.println("Subjects of the student's choice");
-                                student.getAttendedSubject()
-                                        .stream().map(SubjectName::name)
-                                        .forEach(subject -> System.out.println(" -" + subject));
-                                studentSpecialty = student.getSpecialty();
-                                SubjectName compulsorySubjectOfStudent = studentSpecialty.getCompulsorySubject();
-                                System.out.println("Compulsory subject");
-                                System.out.println(" -" + compulsorySubjectOfStudent);
-                            },
-                            () -> System.out.println("Student with ID " + studentId + " not found"));
+        Optional<Student> optionalStudent = students.findStudentById(studentId);
+
+        if(!isIdValid(studentId)) {
+            throw new IncorrectIdException("Invalid student id: " + studentId);
+        }
+
+        Student foundStudent = optionalStudent.orElseThrow(() ->
+                new IllegalArgumentException("Student with id " + studentId + " not found"));
+
+        List<Subject> optionalSubjects = foundStudent.getOptionalSubjects();
+        List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
+
+        System.out.println("Subjects of the student's choice");
+        for (Subject subject: optionalSubjects) {
+            System.out.println(subject);
+        }
+
+        System.out.println("Compulsory subject");
+        for (Subject subject: compulsorySubjects) {
+            System.out.println(subject);
         }
     }
 
     @Override
-    public void viewAllGrades(int studentId) {
-        if (idValidation(studentId)) {
-            Optional<Student> student = students.students.stream().filter(s -> s.getId() == studentId).findFirst();
+    public HashMap<Subject, List<Integer>> viewAllGrades(int studentId) {
+        Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-            if (student.isPresent()) {
-                student.get().getGrades().forEach((key, value) -> System.out.println("subject: " + key + ", grade: " + value));
-            } else {
-                System.out.println("Sorry, student with ID " + studentId + " not found");
-            }
-        }
+        return optionalStudent.map(Student::getGrades)
+                .orElseGet(() -> {
+                    System.out.println("Sorry, student with id " + studentId + " not found");
+                    return new HashMap<>();
+                });
     }
 
     @Override
-    public double averageGradeOfSubject(int studentId, SubjectName subjectName) {
-        if (idValidation(studentId)) {
-            Optional<Student> student = students.students.stream().filter(s -> s.getId() == studentId).findFirst();
+    public Double averageGradeOfSubject(int studentId, String subject) {
+        Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-            if (student.isPresent()) {
-                Student foundStudent = student.get();
+        if (isIdValid(studentId) && optionalStudent.isPresent()) {
+            Student foundStudent = optionalStudent.get();
 
-                List<SubjectName> attendedSubjects = foundStudent.getAttendedSubject();
-                Map<SubjectName, List<Integer>> studentGrades = foundStudent.getGrades();
+            Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
 
-                long numberOfGrades = studentGrades.entrySet().stream()
-                        .filter(entry -> entry.getKey().equals(subjectName))
-                        .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
-                        .count();
+            IntSummaryStatistics gradesSummaryStatistics = studentGrades.entrySet().stream()
+                    .filter(entry -> entry.getKey().getName().equals(subject))
+                    .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
+                    .summaryStatistics();
 
-                if (numberOfGrades > 0) {
-                    int totalGrades = studentGrades.entrySet().stream()
-                            .filter(entry -> entry.getKey().equals(subjectName))
-                            .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
-                            .sum();
-
-                    return (double) totalGrades / numberOfGrades;
-                } else {
-                    System.out.println("Sorry, student with ID " + studentId + " did not attend the subject " + subjectName);
-                }
-            } else {
-                System.out.println("Sorry, student with ID " + studentId + " not found");
-            }
+            return gradesSummaryStatistics.getAverage();
+        } else
+        {
+            System.out.println("Sorry, student with id " + studentId + " not found");
         }
         return 0.0;
     }
 
     @Override
-    public void viewAllStudents() {
-        students.students.forEach(System.out::println);
+    public List<Student> viewAllStudents() {
+        return students.studentList;
     }
 }

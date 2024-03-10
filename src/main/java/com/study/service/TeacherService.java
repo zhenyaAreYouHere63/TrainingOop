@@ -1,14 +1,23 @@
 package com.study.service;
 
-import com.study.dao.program.SubjectName;
+import com.study.dao.core.Student;
+import com.study.dao.core.Subject;
+import com.study.dao.core.Teacher;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public interface TeacherService {
 
-    void createNewTeacher(String firstName, String lastName, SubjectName subjectName);
+    UUID createNewTeacher(String firstName, String lastName, Subject subject);
 
-    void viewEnrolledStudents(int id, SubjectName subjectName);
+    List<Student> viewEnrolledStudents(int id);
 
-    void viewTeachers();
+    HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> grades);
 
-    void gradeStudent(int studentId, SubjectName subject, int grade);
+    List<Teacher> viewTeachers();
+
+    void assignTeacherToGroup(int teacherId, String group);
+
+    Teacher getTeacherByGroup(String subjectName, String group);
 }

@@ -1,16 +1,16 @@
 package com.study;
 
-import com.study.dao.collections.StudentList;
-import com.study.display.StudentMenu;
-import com.study.display.TeacherMenu;
+import com.study.dao.data.StudentList;
+import com.study.display.StudentManager;
+import com.study.display.TeacherManager;
 import java.util.Scanner;
 
 public class Menu {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         StudentList students = new StudentList();
-        StudentMenu studentMenu = new StudentMenu(scanner, students);
-        TeacherMenu teacherMenu = new TeacherMenu(scanner);
+        StudentManager studentManager = new StudentManager(scanner, students);
+        TeacherManager teacherManager = new TeacherManager(scanner, students);
 
         while (true) {
             System.out.println("_______________");
@@ -23,10 +23,10 @@ public class Menu {
 
             switch (menu) {
                 case 1:
-                    studentMenu.displayMenu();
+                    studentManager.displayMenu();
                     break;
                 case 2:
-                    teacherMenu.displayMenu();
+                    teacherManager.displayMenu();
                     break;
                 case 0:
                     System.out.println("Goodbye!");

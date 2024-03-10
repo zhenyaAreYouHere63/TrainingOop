@@ -1,28 +1,30 @@
-package com.study.dao.pojo;
+package com.study.dao.core;
 
-import com.study.dao.program.SubjectName;
+import com.study.dao.Counter;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Teacher {
 
-    private static int lastId = 0;
-
     private int id;
+
+    private UUID uuid;
 
     private String firstName;
 
     private String lastName;
 
-    private SubjectName subjectName;
+    private Subject subject;
 
     public Teacher() {
 
     }
-    public Teacher(String firstName, String lastName, SubjectName subjectName) {
-        this.id = ++lastId;
+    public Teacher(String firstName, String lastName, Subject subject) {
+        this.id = Counter.getTeacherInstance().generateTeacherId();
+        this.uuid = UUID.randomUUID();
         this.firstName = firstName;
         this.lastName = lastName;
-        this.subjectName = subjectName;
+        this.subject = subject;
     }
 
     public String getFirstName() {
@@ -41,12 +43,16 @@ public class Teacher {
         this.lastName = lastName;
     }
 
-    public SubjectName getSubjectName() {
-        return subjectName;
+    public Subject getSubject() {
+        return subject;
     }
 
-    public void setSubjectName(SubjectName subjectName) {
-        this.subjectName = subjectName;
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public int getId() {
@@ -58,20 +64,22 @@ public class Teacher {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Teacher teacher = (Teacher) o;
-        return Objects.equals(firstName, teacher.firstName) && Objects.equals(lastName, teacher.lastName) && subjectName == teacher.subjectName;
+        return id == teacher.id && Objects.equals(uuid, teacher.uuid) && Objects.equals(firstName, teacher.firstName) && Objects.equals(lastName, teacher.lastName) && Objects.equals(subject, teacher.subject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, subjectName);
+        return Objects.hash(id, uuid, firstName, lastName, subject);
     }
 
     @Override
     public String toString() {
         return "Teacher{" +
-               "firstName='" + firstName + '\'' +
+               "id=" + id +
+               ", uuid=" + uuid +
+               ", firstName='" + firstName + '\'' +
                ", lastName='" + lastName + '\'' +
-               ", subjectName=" + subjectName +
+               ", subject='" + subject + '\'' +
                '}';
     }
 }

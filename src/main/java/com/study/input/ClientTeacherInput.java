@@ -1,17 +1,20 @@
 package com.study.input;
 
-import com.study.dao.program.SubjectName;
-import com.study.service.TeacherService;
-import com.study.service.impl.TeacherServiceImpl;
+import com.study.controller.TeacherController;
+import com.study.dao.core.Subject;
+import com.study.dao.data.StudentList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientTeacherInput {
     private Scanner scanner;
-    private TeacherService teacherService;
 
-    public ClientTeacherInput(Scanner scanner) {
+    private TeacherController teacherController;
+
+    public ClientTeacherInput(Scanner scanner, StudentList students) {
         this.scanner = scanner;
-        this.teacherService = new TeacherServiceImpl();
+        teacherController = new TeacherController(students);
     }
 
     public void createNewTeacherWithInput() {
@@ -22,9 +25,11 @@ public class ClientTeacherInput {
         String lastName = scanner.nextLine();
 
         System.out.println("Enter your subject");
-        SubjectName subject = SubjectName.valueOf(scanner.nextLine());
+        String subjectName = scanner.nextLine();
 
-        teacherService.createNewTeacher(firstName, lastName, subject);
+        Subject subject = new Subject(subjectName);
+
+        teacherController.addTeacher(firstName, lastName, subject);
     }
 
     public void viewAllStudentsEnrolledInSubject() {
@@ -33,14 +38,11 @@ public class ClientTeacherInput {
 
         scanner.nextLine();
 
-        System.out.println("Enter subject");
-        SubjectName subject = SubjectName.valueOf(scanner.nextLine());
-
-        teacherService.viewEnrolledStudents(teacherId, subject);
+        teacherController.getAllStudents(teacherId);
      }
 
      public void viewAllTeachers() {
-        teacherService.viewTeachers();
+        teacherController.getAllTeacherList();
      }
 
      public void gradeStudent() {
@@ -49,14 +51,51 @@ public class ClientTeacherInput {
 
          scanner.nextLine();
 
-         System.out.println("Enter subject for evaluation");
-         SubjectName subjectName = SubjectName.valueOf(scanner.nextLine());
+         System.out.println("Enter the subject");
+         String subject = scanner.nextLine();
 
-         System.out.println("Enter grade of subject");
-         int gradeOfSubject = scanner.nextInt();
+         System.out.println("Enter grade of subject or write '-1' to finish");
+         List<Integer> grades = readGrades();
 
          scanner.nextLine();
 
-         teacherService.gradeStudent(idOfStudent, subjectName, gradeOfSubject);
+         teacherController.evaluateStudent(idOfStudent, subject, grades);
      }
+
+     public void addTeacherToGroup() {
+         System.out.println("Enter teacherId");
+         int idOfTeacher = scanner.nextInt();
+
+         scanner.nextLine();
+
+         System.out.println("Enter the group");
+         String group = scanner.nextLine();
+
+         teacherController.addTeacherToGroup(idOfTeacher, group);
+     }
+
+     public void getTeacherByGroup() {
+         System.out.println("Enter the subject");
+         String subject = scanner.nextLine();
+
+         System.out.println("Enter the group");
+         String group = scanner.nextLine();
+
+         teacherController.getTeacherByGroup(subject, group);
+     }
+
+    private List<Integer> readGrades() {
+        List<Integer> grades = new ArrayList<>();
+
+        while (true) {
+            Integer grade = scanner.nextInt();
+
+            if (grade == -1) {
+                break;
+            }
+
+            grades.add(grade);
+        }
+        return grades;
+    }
 }

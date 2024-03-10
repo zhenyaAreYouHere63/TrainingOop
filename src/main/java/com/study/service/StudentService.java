@@ -1,22 +1,24 @@
 package com.study.service;
 
-import com.study.dao.program.Faculty;
-import com.study.dao.program.Group;
-import com.study.dao.program.Specialty;
-import com.study.dao.program.SubjectName;
+import com.study.dao.core.Student;
+import com.study.dao.core.Subject;
+import com.study.dao.data.StudentList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public interface StudentService {
 
-    void createNewStudent(String firstName, String lastName, Faculty faculty, Group group,
-                             Specialty specialty);
+    UUID createStudent(String firstName, String lastName, String faculty, String group,
+                       String specialty, List<Subject> compulsorySubjects);
 
-    void addStudentToCourse(int studentId, SubjectName subjectName);
+    List<Subject> addStudentToCourse(int studentId, Subject subject);
 
     void viewAllSubjects(int studentId);
 
-    void viewAllGrades(int studentId);
+    HashMap<Subject, List<Integer>> viewAllGrades(int studentId);
 
-    double averageGradeOfSubject(int studentId, SubjectName subjectName);
+    Double averageGradeOfSubject(int studentId, String subjectName);
 
-    void viewAllStudents();
+    List<Student> viewAllStudents();
 }
