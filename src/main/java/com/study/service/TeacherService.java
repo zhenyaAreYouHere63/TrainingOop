@@ -17,7 +17,7 @@ public interface TeacherService {
 
     List<Teacher> viewTeachers();
 
-    void assignTeacherToGroup(int teacherId, String group);
+    Teacher assignTeacherToGroup(int teacherId, String group);
 
     Teacher getTeacherByGroup(String subjectName, String group);
 }

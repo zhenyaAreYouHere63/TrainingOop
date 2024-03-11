@@ -6,14 +6,18 @@ import com.study.dao.core.Student;
 import com.study.service.StudentService;
 import com.study.service.exception.IncorrectIdException;
 import com.study.service.validation.IdValidator;
+import com.study.service.validation.ValidationResult;
 import java.util.*;
 
 public class StudentServiceImpl implements StudentService, IdValidator {
 
     private StudentList students;
 
+    private ValidationResult validationResult;
+
     public StudentServiceImpl(StudentList students) {
         this.students = students;
+        validationResult = new ValidationResult();
     }
 
     @Override
@@ -51,28 +55,15 @@ public class StudentServiceImpl implements StudentService, IdValidator {
     }
 
     @Override
-    public void viewAllSubjects(int studentId) {
+    public Student viewAllSubjects(int studentId) {
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
         if(!isIdValid(studentId)) {
             throw new IncorrectIdException("Invalid student id: " + studentId);
         }
 
-        Student foundStudent = optionalStudent.orElseThrow(() ->
+        return optionalStudent.orElseThrow(() ->
                 new IllegalArgumentException("Student with id " + studentId + " not found"));
-
-        List<Subject> optionalSubjects = foundStudent.getOptionalSubjects();
-        List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
-
-        System.out.println("Subjects of the student's choice");
-        for (Subject subject: optionalSubjects) {
-            System.out.println(subject);
-        }
-
-        System.out.println("Compulsory subject");
-        for (Subject subject: compulsorySubjects) {
-            System.out.println(subject);
-        }
     }
 
     @Override

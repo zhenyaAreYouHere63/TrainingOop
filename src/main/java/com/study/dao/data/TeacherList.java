@@ -3,6 +3,7 @@ package com.study.dao.data;
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,7 +11,7 @@ public class TeacherList {
     public List<Teacher> teacherList;
 
     public TeacherList() {
-        teacherList = new ArrayList<>(List.of(
+        teacherList = new ArrayList<>(Arrays.asList(
                 new Teacher("Petro", "Ivaniv", new Subject("Physics")),
                 new Teacher("Larisa", "Volodina", new Subject("Physics")),
                 new Teacher("Tanya", "Sobchuk", new Subject("Math")),

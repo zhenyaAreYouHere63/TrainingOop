@@ -14,7 +14,7 @@ public interface StudentService {
 
     List<Subject> addStudentToCourse(int studentId, Subject subject);
 
-    void viewAllSubjects(int studentId);
+    Student viewAllSubjects(int studentId);
 
     HashMap<Subject, List<Integer>> viewAllGrades(int studentId);
 

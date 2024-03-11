@@ -53,7 +53,8 @@ public class TeacherController {
     }
 
     public void addTeacherToGroup(int teacherId, String group) {
-        teacherService.assignTeacherToGroup(teacherId, group);
+        Teacher teacher = teacherService.assignTeacherToGroup(teacherId, group);
+        System.out.println("Teacher " + teacher.getFirstName() + " " + teacher.getLastName() + " successfully added to group " + group);
     }
 
     public void getTeacherByGroup(String subjectName, String group) {

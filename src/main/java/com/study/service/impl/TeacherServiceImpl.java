@@ -97,7 +97,7 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
     }
 
     @Override
-    public void assignTeacherToGroup(int teacherId, String group) {
+    public Teacher assignTeacherToGroup(int teacherId, String group) {
         Optional<Teacher> optionalTeacher = teachers.findTeacherById(teacherId);
 
         Teacher teacher = optionalTeacher.orElseThrow(() ->
@@ -107,10 +107,10 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
 
         if (!subject.isTeacherAssignedToGroup(group, subject.getName())) {
             teacher.getSubject().assignTeacherToGroup(group, teacher);
-            System.out.println("Teacher with id " + teacherId + " assigned to group ");
         } else {
             System.out.println("Error: Another teacher is already assigned to group ");
         }
+        return teacher;
     }
 
     @Override

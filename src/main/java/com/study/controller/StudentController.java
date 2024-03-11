@@ -31,7 +31,20 @@ public class StudentController {
     }
 
     public void getAllSubjectList(int studentId) {
-        studentService.viewAllSubjects(studentId);
+        Student student = studentService.viewAllSubjects(studentId);
+
+        List<Subject> optionalSubjects = student.getOptionalSubjects();
+        List<Subject> compulsorySubjects = student.getCompulsorySubjects();
+
+        System.out.println("Subjects of the student's choice");
+        for (Subject subject: optionalSubjects) {
+            System.out.println(subject);
+        }
+
+        System.out.println("Compulsory subject");
+        for (Subject subject: compulsorySubjects) {
+            System.out.println(subject);
+        }
     }
 
     public void getAllGrades(int studentId) {
