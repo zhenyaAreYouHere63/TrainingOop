@@ -4,20 +4,26 @@ import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
 import com.study.dao.core.Student;
 import com.study.service.StudentService;
-import com.study.service.exception.IncorrectIdException;
-import com.study.service.validation.IdValidator;
-import com.study.service.validation.ValidationResult;
-import java.util.*;
+import com.study.service.exception.MaxSubjectException;
+import com.study.service.exception.NotFoundException;
+import com.study.service.exception.RepeatException;
+import com.study.service.handler.ErrorHandler;
+import com.study.service.handler.ErrorHandlerSingleton;
+import java.util.List;
+import java.util.UUID;
+import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.IntSummaryStatistics;
 
-public class StudentServiceImpl implements StudentService, IdValidator {
+public class StudentServiceImpl implements StudentService {
 
+    private ErrorHandler errorHandlerChain;
     private StudentList students;
-
-    private ValidationResult validationResult;
 
     public StudentServiceImpl(StudentList students) {
         this.students = students;
-        validationResult = new ValidationResult();
+        this.errorHandlerChain = ErrorHandlerSingleton.getInstance();
     }
 
     @Override
@@ -26,48 +32,46 @@ public class StudentServiceImpl implements StudentService, IdValidator {
 
         Student newStudent = new Student(firstName, lastName, faculty, specialty, group, compulsorySubjects);
         students.studentList.add(newStudent);
+
         return newStudent.getUuid();
     }
 
     @Override
     public List<Subject> addStudentToCourse(int studentId, Subject subject) {
+
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-        if(!isIdValid(studentId)) {
-            throw new IncorrectIdException("Invalid student id: " + studentId);
-        }
-
         Student foundStudent = optionalStudent.orElseThrow(() ->
-                new IllegalArgumentException("Student with id " + studentId + " not found"));
+                new NotFoundException("Student with id " + studentId + " not found"));
 
         List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
 
         if (foundStudent.getOptionalSubjects().size() >= 3) {
-            throw new IllegalStateException("Sorry, the number of subjects has been exceeded");
+            throw new MaxSubjectException("Sorry, the number of subjects has been exceeded");
         }
 
         if (compulsorySubjects.contains(subject)) {
-            throw new IllegalStateException("Student with id " + studentId + " is already studying this subject");
+            throw new RepeatException("Student with id " + studentId + " is already studying this subject");
         }
 
         foundStudent.getOptionalSubjects().add(subject);
+
         return foundStudent.getOptionalSubjects();
     }
 
     @Override
     public Student viewAllSubjects(int studentId) {
+
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-        if(!isIdValid(studentId)) {
-            throw new IncorrectIdException("Invalid student id: " + studentId);
-        }
-
         return optionalStudent.orElseThrow(() ->
-                new IllegalArgumentException("Student with id " + studentId + " not found"));
+                new NotFoundException("Student with id " + studentId + " not found"));
     }
+
 
     @Override
     public HashMap<Subject, List<Integer>> viewAllGrades(int studentId) {
+
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
         return optionalStudent.map(Student::getGrades)
@@ -79,9 +83,10 @@ public class StudentServiceImpl implements StudentService, IdValidator {
 
     @Override
     public Double averageGradeOfSubject(int studentId, String subject) {
+
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
-        if (isIdValid(studentId) && optionalStudent.isPresent()) {
+        if (optionalStudent.isPresent()) {
             Student foundStudent = optionalStudent.get();
 
             Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
@@ -92,8 +97,8 @@ public class StudentServiceImpl implements StudentService, IdValidator {
                     .summaryStatistics();
 
             return gradesSummaryStatistics.getAverage();
-        } else
-        {
+
+        } else {
             System.out.println("Sorry, student with id " + studentId + " not found");
         }
         return 0.0;

@@ -6,15 +6,18 @@ import com.study.dao.data.TeacherList;
 import com.study.dao.core.Student;
 import com.study.dao.core.Teacher;
 import com.study.service.TeacherService;
-import com.study.service.exception.IncorrectIdException;
-import com.study.service.validation.IdValidator;
-import java.util.*;
+import com.study.service.exception.NotFoundException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
-public class TeacherServiceImpl implements TeacherService, IdValidator {
+public class TeacherServiceImpl implements TeacherService {
     private final TeacherList teachers;
-    private StudentList students;
     private final Teacher teacher;
+    private StudentList students;
 
     public TeacherServiceImpl(StudentList students) {
         this.teacher = new Teacher();
@@ -24,23 +27,22 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
 
     @Override
     public UUID createNewTeacher(String firstName, String lastName, Subject subject) {
+
         var newTeacher = new Teacher(firstName, lastName, subject);
         teachers.teacherList.add(newTeacher);
+
         return newTeacher.getUuid();
     }
 
     @Override
     public List<Student> viewEnrolledStudents(int teacherId) {
+
         List<Student> studentsEnrolledToSubject = new ArrayList<>();
 
         Optional<Teacher> optionalTeacher = teachers.findTeacherById(teacherId);
 
-        if (!isIdValid(teacherId)) {
-            throw new IncorrectIdException("Invalid student id: " + teacherId);
-        }
-
         Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+                new NotFoundException("Teacher with id " + teacherId + " not found"));
 
         students.studentList
                 .stream()
@@ -53,21 +55,18 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
 
     @Override
     public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
-        HashMap<Subject, List<Integer>> result = new HashMap<>();
 
-        if (!isIdValid(studentId)) {
-            throw new IncorrectIdException("Invalid student id: " + studentId);
-        }
+        HashMap<Subject, List<Integer>> result = new HashMap<>();
 
         Optional<Student> optionalStudent = students.findStudentById(studentId);
 
         Student student = optionalStudent.orElseThrow(() ->
-                new IllegalArgumentException("Student with id " + studentId + " not found"));
+                new NotFoundException("Student with id " + studentId + " not found"));
 
         Optional<Teacher> optionalTeacher = teachers.findTeacherBySubject(subject);
 
         Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new IllegalArgumentException("Teacher for subject " + subject + " not found"));
+                new NotFoundException("Teacher for subject " + subject + " not found"));
 
         List<Subject> compulsorySubjects = student.getCompulsorySubjects();
         List<Subject> optionalSubjects = student.getOptionalSubjects();
@@ -87,8 +86,11 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
             gradesForSubject.addAll(newGrades);
 
             result.put(subjectToProcess, gradesForSubject);
+
+            return result;
         }
-        return result;
+
+        return null;
     }
 
     @Override
@@ -101,7 +103,7 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
         Optional<Teacher> optionalTeacher = teachers.findTeacherById(teacherId);
 
         Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new IllegalArgumentException("Teacher with id " + teacherId + " not found"));
+                new NotFoundException("Teacher with id " + teacherId + " not found"));
 
         Subject subject = teacher.getSubject();
 
@@ -110,6 +112,7 @@ public class TeacherServiceImpl implements TeacherService, IdValidator {
         } else {
             System.out.println("Error: Another teacher is already assigned to group ");
         }
+
         return teacher;
     }
 
