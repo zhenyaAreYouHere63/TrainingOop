@@ -5,6 +5,7 @@ import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface TeacherService {
@@ -13,7 +14,7 @@ public interface TeacherService {
 
     List<Student> viewEnrolledStudents(int id);
 
-    HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> grades);
+    Map<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> grades);
 
     List<Teacher> viewTeachers();
 

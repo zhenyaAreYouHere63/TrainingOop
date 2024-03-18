@@ -7,11 +7,8 @@ import com.study.dao.core.Student;
 import com.study.dao.core.Teacher;
 import com.study.service.TeacherService;
 import com.study.service.exception.NotFoundException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Stream;
 
 public class TeacherServiceImpl implements TeacherService {
@@ -44,7 +41,7 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacher = optionalTeacher.orElseThrow(() ->
                 new NotFoundException("Teacher with id " + teacherId + " not found"));
 
-        students.studentList
+        students.getStudentList()
                 .stream()
                 .filter(student -> student.getOptionalSubjects().contains(teacher.getSubject()) ||
                                    student.getCompulsorySubjects().contains(teacher.getSubject()))
@@ -54,38 +51,32 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
-
-        HashMap<Subject, List<Integer>> result = new HashMap<>();
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        Student student = optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
+    public Map<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
+        Student student = students.findStudentById(studentId);
 
         Optional<Teacher> optionalTeacher = teachers.findTeacherBySubject(subject);
 
         Teacher teacher = optionalTeacher.orElseThrow(() ->
                 new NotFoundException("Teacher for subject " + subject + " not found"));
 
+        //TODO: use map instead
+
         List<Subject> compulsorySubjects = student.getCompulsorySubjects();
         List<Subject> optionalSubjects = student.getOptionalSubjects();
 
+        //TODO: there should be 1 subject with the name, u can use not list, but Set in Student
         List<Subject> subjectToCheck = Stream.concat(compulsorySubjects.stream(), optionalSubjects.stream())
                 .filter(subjectName -> subjectName.getName().equals(subject))
                 .toList();
 
         if (!subjectToCheck.isEmpty()) {
-            Subject subjectToProcess = subjectToCheck.get(0);
+            Subject subjectToProcess = subjectToCheck.getFirst();
 
-            HashMap<Subject, List<Integer>> grades = student.getGrades();
+            Map<Subject, List<Integer>> grades = student.getGrades();
+            grades.get(subjectToProcess).addAll(newGrades);
 
-            List<Integer> gradesForSubject = grades
-                    .computeIfAbsent(subjectToProcess, k -> new ArrayList<>());
-
-            gradesForSubject.addAll(newGrades);
-
-            result.put(subjectToProcess, gradesForSubject);
+            Map<Subject, List<Integer>> result = new HashMap<>();
+            result.put(subjectToProcess, newGrades);
 
             return result;
         }

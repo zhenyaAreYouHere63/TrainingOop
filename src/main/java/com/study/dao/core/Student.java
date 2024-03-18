@@ -16,6 +16,8 @@ public class Student {
     private String faculty;
     private String specialty;
     private String group;
+
+    private Map<CourseType, List<Subject>> subjects;
     private List<Subject> optionalSubjects;
     private List<Subject> compulsorySubjects;
     private HashMap<Subject, List<Integer>> grades;
@@ -33,9 +35,11 @@ public class Student {
         grades = new HashMap<>();
     }
 
-    public Student() {
-
+    public void addOptionalSubject(Subject subject){
+        optionalSubjects.add(subject);
+        grades.put(subject, new ArrayList<>());
     }
+
 
     public Integer getId() {
         return id;
@@ -94,7 +98,7 @@ public class Student {
         this.optionalSubjects = optionalSubjects;
     }
 
-    public HashMap<Subject, List<Integer>> getGrades() {
+    public Map<Subject, List<Integer>> getGrades() {
         return grades;
     }
 
@@ -108,6 +112,10 @@ public class Student {
 
     public void setCompulsorySubjects(List<Subject> compulsorySubjects) {
         this.compulsorySubjects = compulsorySubjects;
+    }
+
+    public Map<CourseType, List<Subject>> getSubjects() {
+        return subjects;
     }
 
     @Override

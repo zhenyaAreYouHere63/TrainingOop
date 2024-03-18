@@ -1,5 +1,6 @@
 package com.study.service.impl;
 
+import com.study.dao.core.CourseType;
 import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
 import com.study.dao.core.Student;
@@ -9,103 +10,81 @@ import com.study.service.exception.NotFoundException;
 import com.study.service.exception.RepeatException;
 import com.study.service.handler.ErrorHandler;
 import com.study.service.handler.ErrorHandlerSingleton;
-import java.util.List;
-import java.util.UUID;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.IntSummaryStatistics;
+
+import java.util.*;
 
 public class StudentServiceImpl implements StudentService {
 
-    private ErrorHandler errorHandlerChain;
+//    private ErrorHandler errorHandlerChain;
     private StudentList students;
 
     public StudentServiceImpl(StudentList students) {
         this.students = students;
-        this.errorHandlerChain = ErrorHandlerSingleton.getInstance();
+//        this.errorHandlerChain = ErrorHandlerSingleton.getInstance();
     }
 
+    //TODO: add validations for all fields
     @Override
     public UUID createStudent(String firstName, String lastName, String faculty, String group,
                               String specialty, List<Subject> compulsorySubjects) {
 
         Student newStudent = new Student(firstName, lastName, faculty, specialty, group, compulsorySubjects);
-        students.studentList.add(newStudent);
+        students.addStudent(newStudent);
 
         return newStudent.getUuid();
     }
 
+
+    //TODO: add boolean var - isCompulsory
     @Override
-    public List<Subject> addStudentToCourse(int studentId, Subject subject) {
+    public List<Subject> addCourseToTheStudent(int studentId, Subject subject) {
 
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        Student foundStudent = optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
+        Student foundStudent = students.findStudentById(studentId);
 
         List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
-
-        if (foundStudent.getOptionalSubjects().size() >= 3) {
-            throw new MaxSubjectException("Sorry, the number of subjects has been exceeded");
-        }
 
         if (compulsorySubjects.contains(subject)) {
             throw new RepeatException("Student with id " + studentId + " is already studying this subject");
         }
 
-        foundStudent.getOptionalSubjects().add(subject);
+        if (foundStudent.getOptionalSubjects().size() >= 3) {
+            throw new MaxSubjectException("Sorry, the number of subjects has been exceeded");
+        }
+
+        foundStudent.addOptionalSubject(subject);
 
         return foundStudent.getOptionalSubjects();
     }
 
     @Override
-    public Student viewAllSubjects(int studentId) {
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        return optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
+    public Map<CourseType, List<Subject>> getAllSubjects(int studentId) {
+        Student student = students.findStudentById(studentId);
+        return student.getSubjects();
     }
 
 
     @Override
-    public HashMap<Subject, List<Integer>> viewAllGrades(int studentId) {
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        return optionalStudent.map(Student::getGrades)
-                .orElseGet(() -> {
-                    System.out.println("Sorry, student with id " + studentId + " not found");
-                    return new HashMap<>();
-                });
+    public Map<Subject, List<Integer>> viewAllGrades(int studentId) {
+        Student student = students.findStudentById(studentId);
+        return student.getGrades();
     }
 
     @Override
-    public Double averageGradeOfSubject(int studentId, String subject) {
+    public Double calculateAverageGradeOfSubject(int studentId, String subject) {
+        Student foundStudent = students.findStudentById(studentId);
 
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
+        Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
 
-        if (optionalStudent.isPresent()) {
-            Student foundStudent = optionalStudent.get();
+        IntSummaryStatistics gradesSummaryStatistics = studentGrades.entrySet().stream()
+                .filter(entry -> entry.getKey().getName().equals(subject))
+                .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
+                .summaryStatistics();
 
-            Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
-
-            IntSummaryStatistics gradesSummaryStatistics = studentGrades.entrySet().stream()
-                    .filter(entry -> entry.getKey().getName().equals(subject))
-                    .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
-                    .summaryStatistics();
-
-            return gradesSummaryStatistics.getAverage();
-
-        } else {
-            System.out.println("Sorry, student with id " + studentId + " not found");
-        }
-        return 0.0;
+        return gradesSummaryStatistics.getAverage();
     }
 
     @Override
     public List<Student> viewAllStudents() {
-        return students.studentList;
+        return students.getStudentList();
     }
 }

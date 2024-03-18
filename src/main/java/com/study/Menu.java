@@ -22,17 +22,13 @@ public class Menu {
             scanner.nextLine();
 
             switch (menu) {
-                case 1:
-                    studentManager.displayMenu();
-                    break;
-                case 2:
-                    teacherManager.displayMenu();
-                    break;
-                case 0:
-                    System.out.println("Goodbye!");
-                    return;
-                default:
+                case 1 -> studentManager.displayMenu();
+                case 2 -> teacherManager.displayMenu();
+                case 0 -> System.out.println("Goodbye!");
+                default -> {
                     System.out.println("Invalid option. Please enter 1, 2 or 0");
+                    return;
+                }
             }
         }
     }

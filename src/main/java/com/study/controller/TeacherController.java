@@ -32,7 +32,7 @@ public class TeacherController implements IdValidator {
 
     public void getAllStudents(int teacherId) {
         try {
-            validateId(teacherId);
+            validate(teacherId);
 
             List<Student> students = teacherService.viewEnrolledStudents(teacherId);
             for (Student student : students) {
@@ -45,7 +45,7 @@ public class TeacherController implements IdValidator {
 
     public void evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
         try {
-            validateId(studentId);
+            validate(studentId);
 
             HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(studentId, subject, newGrades);
 
@@ -73,7 +73,7 @@ public class TeacherController implements IdValidator {
 
     public void addTeacherToGroup(int teacherId, String group) {
         try {
-            validateId(teacherId);
+            validate(teacherId);
 
             Teacher teacher = teacherService.assignTeacherToGroup(teacherId, group);
             System.out.println("Teacher " + teacher.getFirstName() + " " + teacher.getLastName() + " successfully added to group " + group);
@@ -87,7 +87,7 @@ public class TeacherController implements IdValidator {
         System.out.println(teacherByGroup);
     }
 
-    public void validateId(int id) {
+    public void validate(int id) {
         if (id <= 0) {
             throw new IncorrectIdException("Id cannot be less than 1");
         }

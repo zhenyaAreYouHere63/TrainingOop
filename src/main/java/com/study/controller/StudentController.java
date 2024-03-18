@@ -1,5 +1,6 @@
 package com.study.controller;
 
+import com.study.dao.core.CourseType;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
@@ -29,9 +30,9 @@ public class StudentController implements IdValidator {
     public void addStudentToCourse(int studentId, Subject subject) {
 
         try {
-            validateId(studentId);
+            validate(studentId);
 
-            List<Subject> subjects = studentService.addStudentToCourse(studentId, subject);
+            List<Subject> subjects = studentService.addCourseToTheStudent(studentId, subject);
             for (Subject value : subjects) {
                 System.out.println(value);
             }
@@ -42,22 +43,15 @@ public class StudentController implements IdValidator {
 
     public void getAllSubjectList(int studentId) {
         try {
-            validateId(studentId);
+            validate(studentId);
 
-            Student student = studentService.viewAllSubjects(studentId);
-
-            List<Subject> optionalSubjects = student.getOptionalSubjects();
-            List<Subject> compulsorySubjects = student.getCompulsorySubjects();
+            Map<CourseType, List<Subject>> courses = studentService.getAllSubjects(studentId);
 
             System.out.println("Subjects of the student's choice");
-            for (Subject subject : optionalSubjects) {
-                System.out.println(subject);
-            }
+            courses.get(CourseType.OPTIONAL).forEach(System.out::println);
 
             System.out.println("Compulsory subject");
-            for (Subject subject : compulsorySubjects) {
-                System.out.println(subject);
-            }
+            courses.get(CourseType.COMPULSORY).forEach(System.out::println);
         } catch (Exception exception) {
             handleException(exception);
         }
@@ -65,19 +59,13 @@ public class StudentController implements IdValidator {
 
     public void getAllGrades(int studentId) {
         try {
-            validateId(studentId);
+            validate(studentId);
 
-            HashMap<Subject, List<Integer>> gradesForSubject = studentService.viewAllGrades(studentId);
-            for (Map.Entry<Subject, List<Integer>> entry : gradesForSubject.entrySet()) {
-                String subject = entry.getKey().getName();
-                List<Integer> grades = entry.getValue();
-
-                System.out.println("Subject: " + subject);
-
-                for (Integer grade : grades) {
-                    System.out.println("Grade: " + grade);
-                }
-            }
+            Map<Subject, List<Integer>> gradesForSubjects = studentService.viewAllGrades(studentId);
+            gradesForSubjects.forEach((key, value) -> {
+                System.out.println("Subject: " + key.getName());
+                value.forEach(grade -> System.out.println("Grade: " + grade));
+            });
         } catch (Exception exception) {
             handleException(exception);
         }
@@ -85,9 +73,9 @@ public class StudentController implements IdValidator {
 
     public void getAverageGrade(int studentId, String subject) {
         try {
-            validateId(studentId);
+            validate(studentId);
 
-            Double averageGrade = studentService.averageGradeOfSubject(studentId, subject);
+            Double averageGrade = studentService.calculateAverageGradeOfSubject(studentId, subject);
             System.out.println(averageGrade);
 
         } catch (Exception exception) {
@@ -106,7 +94,7 @@ public class StudentController implements IdValidator {
         }
     }
 
-    public void validateId(int id) {
+    public void validate(int id) {
         if (id <= 0) {
             throw new IncorrectIdException("Id cannot be less than 1");
         }

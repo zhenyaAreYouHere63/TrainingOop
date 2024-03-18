@@ -2,6 +2,7 @@ package com.study.dao.data;
 
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,12 +20,15 @@ public class TeacherList {
                 new Teacher("Olesya", "Pochaina", new Subject("English"))));
     }
 
+    //TODO: return Teacher
+
     public Optional<Teacher> findTeacherById(int teacherId) {
         return teacherList.stream()
                 .filter(student -> student.getId() == teacherId)
                 .findFirst();
     }
 
+    //TODO: return Teacher
     public Optional<Teacher> findTeacherBySubject(String subject) {
         return teacherList.stream()
                 .filter(t -> t.getSubject().getName().equals(subject))

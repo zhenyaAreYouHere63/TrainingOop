@@ -2,25 +2,37 @@ package com.study.dao.data;
 
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import com.study.service.exception.NotFoundException;
+
+import java.util.*;
 
 public class StudentList {
 
-    public List<Student> studentList;
+    private List<Student> studentList;
 
     public StudentList() {
-        studentList = new ArrayList<>(Arrays.asList(
+        studentList = new ArrayList<>(Collections.singletonList(
                 new Student("Ivan", "Ivanenko", "Radioengineering", "Radio_engineering", "Ree_11",
                         new ArrayList<>(List.of(new Subject("Math"), new Subject("Physics")))
         )));
     }
 
-    public Optional<Student> findStudentById(int studentId) {
+    public Student findStudentById(int studentId) {
         return studentList.stream()
                 .filter(student -> student.getId() == studentId)
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Student with id " + studentId + " not found"));
+    }
+
+    public void addStudent(Student student){
+        studentList.add(student);
+    }
+
+    public List<Student> getStudentList() {
+        return studentList;
+    }
+
+    public void setStudentList(List<Student> studentList) {
+        this.studentList = studentList;
     }
 }
