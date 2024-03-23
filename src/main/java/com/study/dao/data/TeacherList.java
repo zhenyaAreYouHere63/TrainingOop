@@ -1,33 +1,53 @@
 package com.study.dao.data;
 
+import com.study.dao.Counter;
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
+import com.study.service.exception.NotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 public class TeacherList {
-    public List<Teacher> teacherList;
+
+    private static final Counter counter = Counter.getTeacherInstance();
+    public List<Teacher> teachers;
 
     public TeacherList() {
-        teacherList = new ArrayList<>(Arrays.asList(
-                new Teacher("Petro", "Ivaniv", new Subject("Physics")),
-                new Teacher("Larisa", "Volodina", new Subject("Physics")),
-                new Teacher("Tanya", "Sobchuk", new Subject("Math")),
-                new Teacher("Vitalina", "Stepashko", new Subject("Math")),
-                new Teacher("Olesya", "Pochaina", new Subject("English"))));
+        teachers = new ArrayList<>(Arrays.asList(
+                new Teacher(counter.generateTeacherId(), UUID.randomUUID(),"Petro", "Ivaniv", new Subject("Physics")),
+                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Larisa", "Volodina", new Subject("Physics")),
+                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Tanya", "Sobchuk", new Subject("Math")),
+                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Vitalina", "Stepashko", new Subject("Math")),
+                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Olesya", "Pochaina", new Subject("English"))));
     }
 
-    public Optional<Teacher> findTeacherById(int teacherId) {
-        return teacherList.stream()
+    public Teacher findTeacherById(int teacherId) {
+        return teachers.stream()
                 .filter(student -> student.getId() == teacherId)
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Teacher with id " + teacherId + " not found"));
     }
 
-    public Optional<Teacher> findTeacherBySubject(String subject) {
-        return teacherList.stream()
+    public Teacher findTeacherBySubject(String subject) {
+        return teachers.stream()
                 .filter(t -> t.getSubject().getName().equals(subject))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(("Teacher for subject " + subject + " not found")));
+    }
+
+    public Teacher addTeacher(Teacher teacher) {
+        teachers.add(teacher);
+        return teacher;
+    }
+
+    public UUID deleteTeacher(int teacherId) {
+        Teacher teacherToDelete = teachers.stream().filter(teacher -> teacher.getId() == teacherId)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Teacher with id " + teacherId + " not found"));
+
+        teachers.remove(teacherToDelete);
+        return teacherToDelete.getUuid();
     }
 }

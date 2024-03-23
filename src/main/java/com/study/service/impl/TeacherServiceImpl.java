@@ -5,107 +5,88 @@ import com.study.dao.data.StudentList;
 import com.study.dao.data.TeacherList;
 import com.study.dao.core.Student;
 import com.study.dao.core.Teacher;
+import com.study.dto.TeacherDto;
+import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
 import com.study.service.exception.NotFoundException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherList teachers;
     private final Teacher teacher;
     private StudentList students;
+    private TeacherMapper teacherMapper;
 
-    public TeacherServiceImpl(StudentList students) {
+    public TeacherServiceImpl(StudentList students, TeacherMapper teacherMapper) {
         this.teacher = new Teacher();
         this.teachers = new TeacherList();
         this.students = students;
+        this.teacherMapper = teacherMapper;
     }
 
     @Override
-    public UUID createNewTeacher(String firstName, String lastName, Subject subject) {
+    public UUID createNewTeacher(TeacherDto teacherDto) {
+        Teacher mappedTeacher = teacherMapper.mapTeacherDtoToTeacher(teacherDto);
 
-        var newTeacher = new Teacher(firstName, lastName, subject);
-        teachers.teacherList.add(newTeacher);
+        Teacher savedTeacher = teachers.addTeacher(mappedTeacher);
 
-        return newTeacher.getUuid();
+        return savedTeacher.getUuid();
     }
 
     @Override
     public List<Student> viewEnrolledStudents(int teacherId) {
+        Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         List<Student> studentsEnrolledToSubject = new ArrayList<>();
 
-        Optional<Teacher> optionalTeacher = teachers.findTeacherById(teacherId);
-
-        Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new NotFoundException("Teacher with id " + teacherId + " not found"));
-
-        students.studentList
+        students.students
                 .stream()
-                .filter(student -> student.getOptionalSubjects().contains(teacher.getSubject()) ||
-                                   student.getCompulsorySubjects().contains(teacher.getSubject()))
+                .filter(student -> student.getSubjects().stream()
+                        .anyMatch(subject -> subject.getName().equalsIgnoreCase(foundTeacher.getSubject().getName())))
                 .forEach(studentsEnrolledToSubject::add);
 
         return studentsEnrolledToSubject;
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
-
-        HashMap<Subject, List<Integer>> result = new HashMap<>();
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        Student student = optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
-
-        Optional<Teacher> optionalTeacher = teachers.findTeacherBySubject(subject);
-
-        Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new NotFoundException("Teacher for subject " + subject + " not found"));
-
-        List<Subject> compulsorySubjects = student.getCompulsorySubjects();
-        List<Subject> optionalSubjects = student.getOptionalSubjects();
-
-        List<Subject> subjectToCheck = Stream.concat(compulsorySubjects.stream(), optionalSubjects.stream())
-                .filter(subjectName -> subjectName.getName().equals(subject))
-                .toList();
-
-        if (!subjectToCheck.isEmpty()) {
-            Subject subjectToProcess = subjectToCheck.get(0);
-
-            HashMap<Subject, List<Integer>> grades = student.getGrades();
-
-            List<Integer> gradesForSubject = grades
-                    .computeIfAbsent(subjectToProcess, k -> new ArrayList<>());
-
-            gradesForSubject.addAll(newGrades);
-
-            result.put(subjectToProcess, gradesForSubject);
-
-            return result;
-        }
-
-        return null;
+    public UUID deleteTeacher(int teacherId) {
+        return teachers.deleteTeacher(teacherId);
     }
 
     @Override
-    public List<Teacher> viewTeachers() {
-        return teachers.teacherList;
+    public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
+
+        Student foundStudent = students.findStudentById(studentId);
+
+        Teacher foundTeacher = teachers.findTeacherBySubject(subject);
+
+        HashMap<Subject, List<Integer>> result = new HashMap<>();
+
+        Optional<Subject> optionalSubject = foundStudent.getSubjects().stream()
+                .filter(currentSubject -> currentSubject.getName().equalsIgnoreCase(subject))
+                .findAny();
+
+        if (optionalSubject.isEmpty()) {
+            throw new NotFoundException("Sorry, this student not study " + subject);
+        } else {
+            HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
+
+            List<Integer> gradesForSubject = grades
+                    .computeIfAbsent(optionalSubject.get(), k -> new ArrayList<>());
+
+            gradesForSubject.addAll(newGrades);
+
+            result.put(optionalSubject.get(), gradesForSubject);
+
+            return result;
+        }
     }
 
     @Override
     public Teacher assignTeacherToGroup(int teacherId, String group) {
-        Optional<Teacher> optionalTeacher = teachers.findTeacherById(teacherId);
+        Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
-        Teacher teacher = optionalTeacher.orElseThrow(() ->
-                new NotFoundException("Teacher with id " + teacherId + " not found"));
-
-        Subject subject = teacher.getSubject();
+        Subject subject = foundTeacher.getSubject();
 
         if (!subject.isTeacherAssignedToGroup(group, subject.getName())) {
             teacher.getSubject().assignTeacherToGroup(group, teacher);
@@ -115,12 +96,15 @@ public class TeacherServiceImpl implements TeacherService {
 
         return teacher;
     }
-
     @Override
     public Teacher getTeacherByGroup(String subjectName, String group) {
-        return teachers.teacherList.stream()
+        return teachers.teachers.stream()
                 .map(t -> t.getSubject().getTeacherByGroupAndSubject(group, subjectName))
                 .findFirst()
                 .orElse(null);
+    }
+    @Override
+    public List<Teacher> viewTeachers() {
+        return teachers.teachers;
     }
 }

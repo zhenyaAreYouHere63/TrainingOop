@@ -1,8 +1,10 @@
 package com.study.input;
 
 import com.study.controller.TeacherController;
-import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
+import com.study.dto.SubjectDtoForTeacher;
+import com.study.dto.TeacherDto;
+import com.study.mapper.TeacherMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,12 +14,12 @@ public class ClientTeacherInput {
 
     private TeacherController teacherController;
 
-    public ClientTeacherInput(Scanner scanner, StudentList students) {
+    public ClientTeacherInput(Scanner scanner, StudentList students, TeacherMapper teacherMapper) {
         this.scanner = scanner;
-        teacherController = new TeacherController(students);
+        teacherController = new TeacherController(students, teacherMapper);
     }
 
-    public void createNewTeacherWithInput() {
+    public void createTeacher() {
         System.out.println("Enter username");
         String firstName = scanner.nextLine();
 
@@ -27,18 +29,25 @@ public class ClientTeacherInput {
         System.out.println("Enter your subject");
         String subjectName = scanner.nextLine();
 
-        Subject subject = new Subject(subjectName);
+        SubjectDtoForTeacher subject = new SubjectDtoForTeacher(subjectName);
 
-        teacherController.addTeacher(firstName, lastName, subject);
+        teacherController.addTeacher(new TeacherDto(firstName, lastName, subject));
     }
 
-    public void viewAllStudentsEnrolledInSubject() {
+    public void deleteTeacher() {
+        System.out.println("Enter teacherId");
+        int teacherId = scanner.nextInt();
+
+        teacherController.deleteTeacher(teacherId);
+    }
+
+    public void viewAllStudentsAttachedInSubject() {
         System.out.println("Enter id");
         int teacherId = scanner.nextInt();
 
         scanner.nextLine();
 
-        teacherController.getAllStudents(teacherId);
+        teacherController.getAllStudentsForTeacherSubject(teacherId);
      }
 
      public void viewAllTeachers() {
@@ -62,7 +71,7 @@ public class ClientTeacherInput {
          teacherController.evaluateStudent(idOfStudent, subject, grades);
      }
 
-     public void addTeacherToGroup() {
+     public void addToGroup() {
          System.out.println("Enter teacherId");
          int idOfTeacher = scanner.nextInt();
 
@@ -74,7 +83,7 @@ public class ClientTeacherInput {
          teacherController.addTeacherToGroup(idOfTeacher, group);
      }
 
-     public void getTeacherByGroup() {
+     public void getByGroup() {
          System.out.println("Enter the subject");
          String subject = scanner.nextLine();
 

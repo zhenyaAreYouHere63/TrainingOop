@@ -1,108 +1,97 @@
 package com.study.controller;
 
+import com.study.dao.SubjectType;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
+import com.study.dto.StudentDto;
+import com.study.mapper.StudentMapper;
 import com.study.service.StudentService;
 import com.study.service.exception.IncorrectIdException;
-import com.study.service.handler.ErrorHandler;
-import com.study.service.handler.ErrorHandlerSingleton;
 import com.study.service.impl.StudentServiceImpl;
 import com.study.service.validation.IdValidator;
 import java.util.*;
 
 public class StudentController implements IdValidator {
-    private ErrorHandler errorHandlerChain;
     private StudentService studentService;
 
-    public StudentController(StudentList students) {
-        studentService = new StudentServiceImpl(students);
-        this.errorHandlerChain = ErrorHandlerSingleton.getInstance();
+    public StudentController(StudentList students, StudentMapper studentMapper) {
+        studentService = new StudentServiceImpl(students, studentMapper);
     }
 
-    public void addStudent(String firstName, String lastName, String faculty, String group,
-                           String specialty, List<Subject> compulsorySubjects) {
-        UUID studentUuid = studentService.createStudent(firstName, lastName, faculty, group, specialty, compulsorySubjects);
+    public void addStudent(StudentDto studentDto) {
+        List<Exception> maybeExceptions = StudentDto.validateStudentDto(studentDto.firstName(), studentDto.lastName(),
+                studentDto.specialty(), studentDto.faculty(), studentDto.group(), studentDto.subjects());
+
+        if (!maybeExceptions.isEmpty()) {
+            System.out.println("Validation errors");
+            for(Exception exception: maybeExceptions) {
+                System.out.println(exception);;
+            }
+            return;
+        }
+
+        UUID studentUuid = studentService.createStudent(studentDto);
+        System.out.println(studentUuid);
+    }
+
+    public void deleteStudent(int studentId) {
+        UUID studentUuid = studentService.deleteStudent(studentId);
         System.out.println(studentUuid);
     }
 
     public void addStudentToCourse(int studentId, Subject subject) {
 
-        try {
-            validateId(studentId);
+        validateId(studentId);
 
-            List<Subject> subjects = studentService.addStudentToCourse(studentId, subject);
-            for (Subject value : subjects) {
-                System.out.println(value);
-            }
-        } catch (Exception exception) {
-            handleException(exception);
+        Set<Subject> subjects = studentService.addStudentToCourse(studentId, subject);
+
+        for (Subject value : subjects) {
+            System.out.println(value);
         }
+
     }
 
     public void getAllSubjectList(int studentId) {
-        try {
-            validateId(studentId);
+        validateId(studentId);
 
-            Student student = studentService.viewAllSubjects(studentId);
+        Set<Subject> subjectsForStudent = studentService.viewAllSubjects(studentId);
 
-            List<Subject> optionalSubjects = student.getOptionalSubjects();
-            List<Subject> compulsorySubjects = student.getCompulsorySubjects();
+        System.out.println("Compulsory subject's");
+        subjectsForStudent.stream().filter(subject -> subject.getType() == SubjectType.COMPULSORY)
+                .map(Subject::getName)
+                .forEach(System.out::println);
 
-            System.out.println("Subjects of the student's choice");
-            for (Subject subject : optionalSubjects) {
-                System.out.println(subject);
-            }
+        System.out.println();
 
-            System.out.println("Compulsory subject");
-            for (Subject subject : compulsorySubjects) {
-                System.out.println(subject);
-            }
-        } catch (Exception exception) {
-            handleException(exception);
-        }
+        System.out.println("Subject's of the student's choice");
+        subjectsForStudent.stream().filter(subject -> subject.getType() == SubjectType.OPTIONAL)
+                .map(Subject::getName)
+                .forEach(System.out::println);
     }
 
     public void getAllGrades(int studentId) {
-        try {
-            validateId(studentId);
+        validateId(studentId);
 
-            HashMap<Subject, List<Integer>> gradesForSubject = studentService.viewAllGrades(studentId);
-            for (Map.Entry<Subject, List<Integer>> entry : gradesForSubject.entrySet()) {
-                String subject = entry.getKey().getName();
-                List<Integer> grades = entry.getValue();
+        HashMap<Subject, List<Integer>> gradesForSubject = studentService.viewAllGrades(studentId);
 
-                System.out.println("Subject: " + subject);
-
-                for (Integer grade : grades) {
-                    System.out.println("Grade: " + grade);
-                }
-            }
-        } catch (Exception exception) {
-            handleException(exception);
-        }
+        gradesForSubject.forEach((key, value) -> {
+            System.out.println("Subject: " + key.getName());
+            value.forEach(grade -> System.out.println("Grade: " + grade));
+        });
     }
 
     public void getAverageGrade(int studentId, String subject) {
-        try {
-            validateId(studentId);
+        validateId(studentId);
 
-            Double averageGrade = studentService.averageGradeOfSubject(studentId, subject);
-            System.out.println(averageGrade);
-
-        } catch (Exception exception) {
-            handleException(exception);
-        }
+        Double averageGrade = studentService.averageGradeOfSubject(studentId, subject);
+        System.out.println(averageGrade);
     }
 
     public void getAllStudentList() {
-        try {
-            List<Student> students = studentService.viewAllStudents();
-            for (Student student : students) {
-                System.out.println(student);
-            }
-        } catch (Exception exception) {
-            handleException(exception);
+        List<Student> students = studentService.viewAllStudents();
+        for (Student student : students) {
+            System.out.println(student);
         }
     }
 
@@ -110,9 +99,5 @@ public class StudentController implements IdValidator {
         if (id <= 0) {
             throw new IncorrectIdException("Id cannot be less than 1");
         }
-    }
-
-    private void handleException(Exception exception) {
-        errorHandlerChain.handleRequest(exception);
     }
 }

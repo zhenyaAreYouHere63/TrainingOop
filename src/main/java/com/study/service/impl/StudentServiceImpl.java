@@ -1,111 +1,103 @@
 package com.study.service.impl;
 
+import com.study.dao.SubjectType;
 import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
 import com.study.dao.core.Student;
+import com.study.dto.StudentDto;
+import com.study.mapper.StudentMapper;
 import com.study.service.StudentService;
 import com.study.service.exception.MaxSubjectException;
-import com.study.service.exception.NotFoundException;
 import com.study.service.exception.RepeatException;
-import com.study.service.handler.ErrorHandler;
-import com.study.service.handler.ErrorHandlerSingleton;
-import java.util.List;
 import java.util.UUID;
 import java.util.Optional;
+import java.util.Set;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.IntSummaryStatistics;
 
 public class StudentServiceImpl implements StudentService {
 
-    private ErrorHandler errorHandlerChain;
     private StudentList students;
 
-    public StudentServiceImpl(StudentList students) {
+    private StudentMapper studentMapper;
+
+    public StudentServiceImpl(StudentList students, StudentMapper studentMapper) {
         this.students = students;
-        this.errorHandlerChain = ErrorHandlerSingleton.getInstance();
+        this.studentMapper = studentMapper;
     }
 
     @Override
-    public UUID createStudent(String firstName, String lastName, String faculty, String group,
-                              String specialty, List<Subject> compulsorySubjects) {
+    public UUID createStudent(StudentDto studentDto) {
+        Student mappedStudent = studentMapper.mapStudentDtoToStudent(studentDto);
 
-        Student newStudent = new Student(firstName, lastName, faculty, specialty, group, compulsorySubjects);
-        students.studentList.add(newStudent);
+        checkedExceededSubjects(mappedStudent);
 
-        return newStudent.getUuid();
+        return students.addStudent(mappedStudent);
     }
 
     @Override
-    public List<Subject> addStudentToCourse(int studentId, Subject subject) {
+    public UUID deleteStudent(int studentId) {
+         return students.deleteStudent(studentId);
+    }
 
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
+    @Override
+    public Set<Subject> addStudentToCourse(int studentId, Subject subject) {
+        Student foundStudent = students.findStudentById(studentId);
 
-        Student foundStudent = optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
+        Set<Subject> studentSubjects = foundStudent.getSubjects();
 
-        List<Subject> compulsorySubjects = foundStudent.getCompulsorySubjects();
+        Optional<Subject> maybeRepeatSubject = studentSubjects.stream().filter(foundSubject ->
+                        foundSubject.getName().equalsIgnoreCase(subject.getName()))
+                .findFirst();
 
-        if (foundStudent.getOptionalSubjects().size() >= 3) {
-            throw new MaxSubjectException("Sorry, the number of subjects has been exceeded");
+        if (maybeRepeatSubject.isPresent()) {
+            throw new RepeatException("StudentDto with id " + studentId + " is already studying this subject");
         }
 
-        if (compulsorySubjects.contains(subject)) {
-            throw new RepeatException("Student with id " + studentId + " is already studying this subject");
-        }
+        checkedExceededSubjects(foundStudent);
 
-        foundStudent.getOptionalSubjects().add(subject);
+        foundStudent.getSubjects().add(subject);
 
-        return foundStudent.getOptionalSubjects();
+        return foundStudent.getSubjects();
     }
 
     @Override
-    public Student viewAllSubjects(int studentId) {
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        return optionalStudent.orElseThrow(() ->
-                new NotFoundException("Student with id " + studentId + " not found"));
+    public Set<Subject> viewAllSubjects(int studentId) {
+        return students.findStudentById(studentId).getSubjects();
     }
-
 
     @Override
     public HashMap<Subject, List<Integer>> viewAllGrades(int studentId) {
-
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
-
-        return optionalStudent.map(Student::getGrades)
-                .orElseGet(() -> {
-                    System.out.println("Sorry, student with id " + studentId + " not found");
-                    return new HashMap<>();
-                });
+        return students.findStudentById(studentId).getGrades();
     }
 
     @Override
     public Double averageGradeOfSubject(int studentId, String subject) {
+        Student foundStudent = students.findStudentById(studentId);
 
-        Optional<Student> optionalStudent = students.findStudentById(studentId);
+        Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
 
-        if (optionalStudent.isPresent()) {
-            Student foundStudent = optionalStudent.get();
-
-            Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
-
-            IntSummaryStatistics gradesSummaryStatistics = studentGrades.entrySet().stream()
-                    .filter(entry -> entry.getKey().getName().equals(subject))
-                    .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
-                    .summaryStatistics();
-
-            return gradesSummaryStatistics.getAverage();
-
-        } else {
-            System.out.println("Sorry, student with id " + studentId + " not found");
-        }
-        return 0.0;
+        return studentGrades.entrySet().stream().filter(currentSubject -> currentSubject
+                        .getKey().getName().equalsIgnoreCase(subject))
+                .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
+                .average()
+                .orElse(0.0);
     }
 
     @Override
     public List<Student> viewAllStudents() {
-        return students.studentList;
+        return students.students;
+    }
+
+    private void checkedExceededSubjects(Student mappedStudent) {
+        Set<Subject> studentSubjects = mappedStudent.getSubjects();
+
+        long countOfOptionalSubjects = studentSubjects.stream()
+                .filter(foundsubject -> foundsubject.getType() == SubjectType.OPTIONAL).count();
+
+        if (countOfOptionalSubjects >= 3) {
+            throw new MaxSubjectException("Sorry, the number of subjects has been exceeded");
+        }
     }
 }

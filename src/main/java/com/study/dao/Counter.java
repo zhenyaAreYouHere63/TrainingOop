@@ -1,8 +1,13 @@
 package com.study.dao;
 
+import lombok.Getter;
+
+@Getter
 public class Counter {
+
     private static Counter studentInstance;
     private static Counter teacherInstance;
+
     private int lastStudentId = 0;
     private int lastTeacherId = 0;
     private Counter() {
@@ -28,13 +33,5 @@ public class Counter {
 
     public int generateTeacherId() {
         return ++lastTeacherId;
-    }
-
-    public int getLastStudentId() {
-        return lastStudentId;
-    }
-
-    public int getLastTeacherId() {
-        return lastTeacherId;
     }
 }
