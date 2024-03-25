@@ -26,15 +26,12 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public UUID createNewTeacher(TeacherDto teacherDto) {
-        Teacher mappedTeacher = teacherMapper.mapTeacherDtoToTeacher(teacherDto);
-
-        Teacher savedTeacher = teachers.addTeacher(mappedTeacher);
-
-        return savedTeacher.getUuid();
+        Teacher teacherToSave = teacherMapper.mapTeacherDtoToTeacher(teacherDto);
+        return teachers.addTeacher(teacherToSave).getUuid();
     }
 
     @Override
-    public List<Student> viewEnrolledStudents(int teacherId) {
+    public List<Student> getEnrolledStudents(int teacherId) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         List<Student> studentsEnrolledToSubject = new ArrayList<>();
@@ -54,42 +51,39 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
+    public Map<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
 
         Student foundStudent = students.findStudentById(studentId);
 
-        Teacher foundTeacher = teachers.findTeacherBySubject(subject);
+        teachers.findTeacherBySubject(subject); // if teacher doesn't exist, it throws an exeption
 
-        HashMap<Subject, List<Integer>> result = new HashMap<>();
-
-        Optional<Subject> optionalSubject = foundStudent.getSubjects().stream()
+        Subject studentSubject = foundStudent.getSubjects().stream()
                 .filter(currentSubject -> currentSubject.getName().equalsIgnoreCase(subject))
-                .findAny();
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Sorry, this student not study " + subject));
 
-        if (optionalSubject.isEmpty()) {
-            throw new NotFoundException("Sorry, this student not study " + subject);
-        } else {
-            HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
+        Map<Subject, List<Integer>> grades = foundStudent.getGrades();
 
-            List<Integer> gradesForSubject = grades
-                    .computeIfAbsent(optionalSubject.get(), k -> new ArrayList<>());
+        //TODO: I would move this logic to the stusent subj enrollment part
+        List<Integer> gradesForSubject = grades
+                .computeIfAbsent(studentSubject, k -> new ArrayList<>());
 
-            gradesForSubject.addAll(newGrades);
+        gradesForSubject.addAll(newGrades);
 
-            result.put(optionalSubject.get(), gradesForSubject);
+        Map<Subject, List<Integer>> result = new HashMap<>();
+        result.put(studentSubject, gradesForSubject);
 
-            return result;
-        }
+        return result;
     }
 
     @Override
-    public Teacher assignTeacherToGroup(int teacherId, String group) {
+    public Teacher assignTeacherToGroup(int teacherId, String groupName) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         Subject subject = foundTeacher.getSubject();
 
-        if (!subject.isTeacherAssignedToGroup(group, subject.getName())) {
-            teacher.getSubject().assignTeacherToGroup(group, teacher);
+        if (!subject.isTeacherAssignedToGroup(groupName, subject.getName())) {
+            teacher.getSubject().assignTeacherToGroup(groupName, teacher);
         } else {
             System.out.println("Error: Another teacher is already assigned to group ");
         }
@@ -98,13 +92,13 @@ public class TeacherServiceImpl implements TeacherService {
     }
     @Override
     public Teacher getTeacherByGroup(String subjectName, String group) {
-        return teachers.teachers.stream()
+        return teachers.getTeachers().stream()
                 .map(t -> t.getSubject().getTeacherByGroupAndSubject(group, subjectName))
                 .findFirst()
-                .orElse(null);
+                .orElse(null); //TODO: ot would be better to throw exception
     }
     @Override
-    public List<Teacher> viewTeachers() {
-        return teachers.teachers;
+    public List<Teacher> getTeachers() {
+        return teachers.getTeachers();
     }
 }

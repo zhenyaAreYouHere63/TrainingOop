@@ -1,23 +1,20 @@
 package com.study.dao.data;
 
-import com.study.dao.Counter;
+import com.study.dao.IdCounter;
 import com.study.dao.SubjectType;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
 import com.study.service.exception.NotFoundException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.HashSet;
+
+import java.util.*;
 
 public class StudentList {
 
-    public List<Student> students;
+    public final List<Student> students;
 
     public StudentList() {
-        students = new ArrayList<>(Arrays.asList(
-                new Student(Counter.getStudentInstance().generateStudentId(), UUID.randomUUID(),
+        students = new ArrayList<>(Collections.singletonList(
+                new Student(IdCounter.getStudentInstance().generateStudentId(), UUID.randomUUID(),
                         "Ivan", "Ivanenko", "Radioengineering", "Radio_engineering", "Ree_11",
                         new HashSet<>(List.of(new Subject("Math", SubjectType.COMPULSORY), new Subject("Physics", SubjectType.COMPULSORY)))
         )));

@@ -1,5 +1,6 @@
 package com.study.service.impl;
 
+import com.study.dao.DataProvider;
 import com.study.dao.SubjectType;
 import com.study.dao.core.Subject;
 import com.study.dao.data.StudentList;
@@ -8,6 +9,7 @@ import com.study.dto.StudentDto;
 import com.study.mapper.StudentMapper;
 import com.study.service.StudentService;
 import com.study.service.exception.MaxSubjectException;
+import com.study.service.exception.NotFoundException;
 import com.study.service.exception.RepeatException;
 import java.util.UUID;
 import java.util.Optional;
@@ -29,6 +31,9 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public UUID createStudent(StudentDto studentDto) {
+        if(!DataProvider.getLearningsPrograms().contains(studentDto.specialty()))
+            throw new NotFoundException("Bababal");
+
         Student mappedStudent = studentMapper.mapStudentDtoToStudent(studentDto);
 
         checkedExceededSubjects(mappedStudent);

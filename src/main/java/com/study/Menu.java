@@ -24,10 +24,10 @@ public class Menu {
             System.out.println("Enter 1 for student, 2 for teacher, 0 to exit");
             System.out.println("_______________");
 
-            int menu = scanner.nextInt();
+            int option = scanner.nextInt();
             scanner.nextLine();
 
-            switch (menu) {
+            switch (option) {
                 case 1 -> studentOperations.displayMenu();
                 case 2 -> teacherOperations.displayMenu();
                 case 0 -> {

@@ -5,12 +5,13 @@ import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
 import com.study.dao.data.StudentList;
 import com.study.dto.TeacherDto;
+import com.study.dto.ValidationResult;
 import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
 import com.study.service.exception.IncorrectIdException;
 import com.study.service.impl.TeacherServiceImpl;
 import com.study.service.validation.IdValidator;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,18 +24,16 @@ public class TeacherController implements IdValidator {
     }
 
     public void addTeacher(TeacherDto teacherDto) {
-        List<Exception> maybeExceptions = TeacherDto.validateTeacherDto(teacherDto.firstName(), teacherDto.lastName(), teacherDto.subject());
+        List<ValidationResult> validationErrors = TeacherDto.validateTeacherDto(teacherDto.firstName(), teacherDto.lastName(), teacherDto.subject());
 
-        if(!maybeExceptions.isEmpty()) {
+        if(!validationErrors.isEmpty()) {
             System.out.println("Validation exceptions");
-            for (Exception exception: maybeExceptions) {
-                System.out.println(exception);
-            }
+            validationErrors.forEach(System.out::println);
             return;
         }
 
         UUID teacherUuid = teacherService.createNewTeacher(teacherDto);
-        System.out.println(teacherUuid);
+        System.out.printf("\n Teacher with id %s was saved%n", teacherUuid.toString());
     }
 
     public void deleteTeacher(int teacherId) {
@@ -44,17 +43,14 @@ public class TeacherController implements IdValidator {
 
     public void getAllStudentsForTeacherSubject(int teacherId) {
         validateId(teacherId);
-
-        List<Student> students = teacherService.viewEnrolledStudents(teacherId);
-        for (Student student : students) {
-            System.out.println(student);
-        }
+        List<Student> students = teacherService.getEnrolledStudents(teacherId);
+        students.forEach(System.out::println);
     }
 
     public void evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
         validateId(studentId);
 
-        HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(studentId, subject, newGrades);
+        Map<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(studentId, subject, newGrades);
 
         for (Map.Entry<Subject, List<Integer>> entry : evaluateGradesForSubject.entrySet()) {
             String subjectToEvaluate = entry.getKey().getName();
@@ -69,10 +65,8 @@ public class TeacherController implements IdValidator {
     }
 
     public void getAllTeacherList() {
-        List<Teacher> teachers = teacherService.viewTeachers();
-        for (Teacher teacher : teachers) {
-            System.out.println(teacher);
-        }
+        List<Teacher> teachers = teacherService.getTeachers();
+        teachers.forEach(System.out::println);
     }
 
     public void addTeacherToGroup(int teacherId, String group) {
@@ -87,6 +81,7 @@ public class TeacherController implements IdValidator {
         System.out.println(teacherByGroup);
     }
 
+    //TODO: move to a separate class - IdValidator (it might be even a static method)
     public void validateId(int id) {
         if (id <= 0) {
             throw new IncorrectIdException("Id cannot be less than 1");

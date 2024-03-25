@@ -7,15 +7,15 @@ public record TeacherDto(String firstName,
                          String lastName,
                          SubjectDtoForTeacher subject) {
 
-    public static List<Exception> validateTeacherDto(String firstName, String lastName, SubjectDtoForTeacher subjectDtoForTeacher) {
+    public static List<ValidationResult> validateTeacherDto(String firstName, String lastName, SubjectDtoForTeacher subjectDtoForTeacher) {
 
-        List<Exception> errors = new ArrayList<>();
+        List<ValidationResult> errors = new ArrayList<>();
 
         if (firstName.isBlank()) {
-            errors.add(new IllegalArgumentException("The field firstName cannot be blank"));
+            errors.add(ValidationResult.failed("The field firstName cannot be blank"));
         }
         if (lastName.isBlank()) {
-            errors.add(new IllegalArgumentException("The field lastName cannot be blank"));
+            errors.add(ValidationResult.failed("The field lastName cannot be blank"));
         }
 
         validateSubject(subjectDtoForTeacher, errors);
@@ -23,12 +23,8 @@ public record TeacherDto(String firstName,
         return errors;
     }
 
-    private static void validateSubject(SubjectDtoForTeacher subjectDtoForTeacher, List<Exception> errors) {
-        try {
-            SubjectDtoForTeacher.validateSubjectDtoForTeacher(subjectDtoForTeacher.name());
-        }
-        catch (IllegalArgumentException exception) {
-            errors.add(exception);
-        }
+    private static void validateSubject(SubjectDtoForTeacher subjectDtoForTeacher, List<ValidationResult> errors) {
+        ValidationResult validationResult = SubjectDtoForTeacher.validateSubjectDtoForTeacher(subjectDtoForTeacher.name());
+        if (validationResult.isFailed()) errors.add(validationResult);
     }
 }

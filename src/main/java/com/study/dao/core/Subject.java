@@ -22,6 +22,7 @@ public class Subject {
 
     private SubjectType type;
 
+    //TODO: it should be Group, not string
     private static Map<String, Teacher> teachersByGroup = new HashMap<>();
 
     public Subject(String name, SubjectType type) {
@@ -52,10 +53,6 @@ public class Subject {
 
     public boolean isTeacherAssignedToGroup(String group, String subject) {
         Teacher teacher = teachersByGroup.get(group);
-        if (teacher != null && teacher.getSubject().getName().equals(subject)) {
-            return true;
-        } else {
-            return false;
-        }
+        return teacher != null && teacher.getSubject().getName().equals(subject);
     }
 }

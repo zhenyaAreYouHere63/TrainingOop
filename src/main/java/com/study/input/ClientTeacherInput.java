@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * This class is responsible for.../ is need for.../ serves as...
+ */
 public class ClientTeacherInput {
-    private Scanner scanner;
+    private final Scanner scanner;
 
-    private TeacherController teacherController;
+    private final TeacherController teacherController;
 
     public ClientTeacherInput(Scanner scanner, StudentList students, TeacherMapper teacherMapper) {
         this.scanner = scanner;

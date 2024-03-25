@@ -1,6 +1,6 @@
 package com.study.dao.data;
 
-import com.study.dao.Counter;
+import com.study.dao.IdCounter;
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
 import com.study.service.exception.NotFoundException;
@@ -11,16 +11,16 @@ import java.util.UUID;
 
 public class TeacherList {
 
-    private static final Counter counter = Counter.getTeacherInstance();
-    public List<Teacher> teachers;
+    private static final IdCounter ID_COUNTER = IdCounter.getTeacherInstance();
+    private final List<Teacher> teachers;
 
     public TeacherList() {
         teachers = new ArrayList<>(Arrays.asList(
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(),"Petro", "Ivaniv", new Subject("Physics")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Larisa", "Volodina", new Subject("Physics")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Tanya", "Sobchuk", new Subject("Math")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Vitalina", "Stepashko", new Subject("Math")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Olesya", "Pochaina", new Subject("English"))));
+                new Teacher(ID_COUNTER.generateTeacherId(), UUID.randomUUID(),"Petro", "Ivaniv", new Subject("Physics")),
+                new Teacher(ID_COUNTER.generateTeacherId(), UUID.randomUUID(), "Larisa", "Volodina", new Subject("Physics")),
+                new Teacher(ID_COUNTER.generateTeacherId(), UUID.randomUUID(), "Tanya", "Sobchuk", new Subject("Math")),
+                new Teacher(ID_COUNTER.generateTeacherId(), UUID.randomUUID(), "Vitalina", "Stepashko", new Subject("Math")),
+                new Teacher(ID_COUNTER.generateTeacherId(), UUID.randomUUID(), "Olesya", "Pochaina", new Subject("English"))));
     }
 
     public Teacher findTeacherById(int teacherId) {
@@ -49,5 +49,9 @@ public class TeacherList {
 
         teachers.remove(teacherToDelete);
         return teacherToDelete.getUuid();
+    }
+
+    public List<Teacher> getTeachers() {
+        return teachers;
     }
 }
