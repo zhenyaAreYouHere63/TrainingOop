@@ -1,8 +1,10 @@
 package com.study.mapper;
 
-import com.study.dao.Counter;
+import com.study.dao.IdCounter;
+import com.study.dao.core.Group;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
+import com.study.dto.GroupDto;
 import com.study.dto.StudentDto;
 import com.study.dto.SubjectDtoForStudent;
 import java.util.HashSet;
@@ -10,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class StudentMapperImpl implements StudentMapper {
-    private static final Counter counter = Counter.getStudentInstance();
+    private static final IdCounter ID_COUNTER = IdCounter.getStudentInstance();
 
     @Override
     public StudentDto mapStudentToStudentDto(Student student) {
@@ -19,7 +21,7 @@ public class StudentMapperImpl implements StudentMapper {
                 student.getLastName(),
                 student.getFaculty(),
                 student.getSpecialty(),
-                student.getGroup(),
+                mapGroupToGroupDto(student.getGroup()),
                 mapSubjectsToSubjectDto(student.getSubjects())
         );
     }
@@ -27,20 +29,20 @@ public class StudentMapperImpl implements StudentMapper {
     @Override
     public Student mapStudentDtoToStudent(StudentDto studentDto) {
         return new Student(
-                counter.generateStudentId(),
+                ID_COUNTER.generateStudentId(),
                 UUID.randomUUID(),
                 studentDto.firstName(),
                 studentDto.lastName(),
                 studentDto.faculty(),
                 studentDto.specialty(),
-                studentDto.group(),
+                mapGroupDtoToGroup(studentDto.group()),
                 mapSubjectDtosToSubjects(studentDto.subjects()));
     }
 
     private Set<Subject> mapSubjectDtosToSubjects(Set<SubjectDtoForStudent> subjectDtoForStudents) {
         Set<Subject> subjects = new HashSet<>();
         for(SubjectDtoForStudent subjectDtoForStudent : subjectDtoForStudents) {
-            subjects.add(new Subject(subjectDtoForStudent.name(), subjectDtoForStudent.subjectType()));
+            subjects.add(new Subject(subjectDtoForStudent.subject(), subjectDtoForStudent.subjectType()));
         }
         return subjects;
     }
@@ -51,5 +53,13 @@ public class StudentMapperImpl implements StudentMapper {
             subjectDtoForStudents.add(new SubjectDtoForStudent(subject.getName(), subject.getType()));
         }
         return subjectDtoForStudents;
+    }
+
+    private Group mapGroupDtoToGroup(GroupDto groupDto) {
+        return new Group(groupDto.name());
+    }
+
+    private GroupDto mapGroupToGroupDto(Group group) {
+        return new GroupDto(group.getName());
     }
 }

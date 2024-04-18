@@ -2,6 +2,7 @@ package com.study.service.impl;
 
 import com.study.dao.SubjectType;
 import com.study.dao.core.Subject;
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
 import com.study.dao.core.Student;
 import com.study.dto.StudentDto;
@@ -22,7 +23,10 @@ public class StudentServiceImpl implements StudentService {
 
     private StudentMapper studentMapper;
 
-    public StudentServiceImpl(StudentList students, StudentMapper studentMapper) {
+    private GroupList groups;
+
+    public StudentServiceImpl(StudentList students, StudentMapper studentMapper, GroupList groups) {
+        this.groups = groups;
         this.students = students;
         this.studentMapper = studentMapper;
     }
@@ -31,13 +35,18 @@ public class StudentServiceImpl implements StudentService {
     public UUID createStudent(StudentDto studentDto) {
         Student mappedStudent = studentMapper.mapStudentDtoToStudent(studentDto);
 
+        groups.addStudentToGroup(mappedStudent);
+
         checkedExceededSubjects(mappedStudent);
 
         return students.addStudent(mappedStudent);
+
     }
 
     @Override
     public UUID deleteStudent(int studentId) {
+
+         groups.removeStudentFromGroup(studentId);
          return students.deleteStudent(studentId);
     }
 
@@ -52,7 +61,7 @@ public class StudentServiceImpl implements StudentService {
                 .findFirst();
 
         if (maybeRepeatSubject.isPresent()) {
-            throw new RepeatException("StudentDto with id " + studentId + " is already studying this subject");
+            throw new RepeatException("Student with id " + studentId + " is already studying this subject");
         }
 
         checkedExceededSubjects(foundStudent);
@@ -87,7 +96,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> viewAllStudents() {
-        return students.students;
+        return students.viewAllStudents();
     }
 
     private void checkedExceededSubjects(Student mappedStudent) {

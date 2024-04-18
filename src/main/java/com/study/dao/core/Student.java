@@ -25,11 +25,11 @@ public class Student {
     private String lastName;
     private String faculty;
     private String specialty;
-    private String group;
+    private Group group;
     private Set<Subject> subjects;
     private HashMap<Subject, List<Integer>> grades;
 
-    public Student(Integer id, UUID uuid, String firstName, String lastName, String faculty, String specialty, String group, Set<Subject> subjects) {
+    public Student(Integer id, UUID uuid, String firstName, String lastName, String faculty, String specialty, Group group, Set<Subject> subjects) {
         this.id = id;
         this.uuid = uuid;
         this.firstName = firstName;

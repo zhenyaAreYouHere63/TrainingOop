@@ -3,7 +3,9 @@ package com.study.input;
 import com.study.controller.StudentController;
 import com.study.dao.SubjectType;
 import com.study.dao.core.Subject;
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
+import com.study.dto.GroupDto;
 import com.study.dto.StudentDto;
 import com.study.dto.SubjectDtoForStudent;
 import com.study.mapper.StudentMapper;
@@ -15,9 +17,9 @@ public class ClientStudentInput {
     private Scanner scanner;
     private StudentController studentController;
 
-    public ClientStudentInput(Scanner scanner, StudentList students, StudentMapper studentMapper) {
+    public ClientStudentInput(Scanner scanner, StudentList students, StudentMapper studentMapper, GroupList groups) {
         this.scanner = scanner;
-        studentController = new StudentController(students, studentMapper);
+        studentController = new StudentController(students, studentMapper, groups);
     }
 
     public void createStudent() {
@@ -38,7 +40,7 @@ public class ClientStudentInput {
 
         Set<SubjectDtoForStudent> subjectDtoForStudents = readSubjects();
 
-        studentController.addStudent(new StudentDto(firstName, lastName, faculty, specialty, group, subjectDtoForStudents));
+        studentController.addStudent(new StudentDto(firstName, lastName, faculty, specialty, new GroupDto(group), subjectDtoForStudents));
     }
 
     public void deleteStudent() {
@@ -68,7 +70,7 @@ public class ClientStudentInput {
 
         scanner.nextLine();
 
-        System.out.println("Enter subject name");
+        System.out.println("Enter subject subject");
         String subject = scanner.nextLine();
 
         studentController.getAverageGrade(id, subject);
@@ -80,7 +82,7 @@ public class ClientStudentInput {
 
         scanner.nextLine();
 
-        System.out.println("Enter subject name");
+        System.out.println("Enter subject subject");
         String subjectName = scanner.nextLine();
 
         System.out.println("This subject is compulsory?");

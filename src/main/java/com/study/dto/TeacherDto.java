@@ -25,7 +25,7 @@ public record TeacherDto(String firstName,
 
     private static void validateSubject(SubjectDtoForTeacher subjectDtoForTeacher, List<Exception> errors) {
         try {
-            SubjectDtoForTeacher.validateSubjectDtoForTeacher(subjectDtoForTeacher.name());
+            SubjectDtoForTeacher.validateSubjectDtoForTeacher(subjectDtoForTeacher.subject());
         }
         catch (IllegalArgumentException exception) {
             errors.add(exception);

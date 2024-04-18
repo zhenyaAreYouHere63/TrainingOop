@@ -1,7 +1,9 @@
 package com.study.input;
 
 import com.study.controller.TeacherController;
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
+import com.study.dao.data.TeacherList;
 import com.study.dto.SubjectDtoForTeacher;
 import com.study.dto.TeacherDto;
 import com.study.mapper.TeacherMapper;
@@ -14,9 +16,9 @@ public class ClientTeacherInput {
 
     private TeacherController teacherController;
 
-    public ClientTeacherInput(Scanner scanner, StudentList students, TeacherMapper teacherMapper) {
+    public ClientTeacherInput(Scanner scanner, StudentList students, TeacherMapper teacherMapper, GroupList groups, TeacherList teachers) {
         this.scanner = scanner;
-        teacherController = new TeacherController(students, teacherMapper);
+        teacherController = new TeacherController(students, teacherMapper, groups, teachers);
     }
 
     public void createTeacher() {
@@ -77,20 +79,26 @@ public class ClientTeacherInput {
 
          scanner.nextLine();
 
-         System.out.println("Enter the group");
+         System.out.println("Enter the group name");
          String group = scanner.nextLine();
 
          teacherController.addTeacherToGroup(idOfTeacher, group);
      }
 
      public void getByGroup() {
-         System.out.println("Enter the subject");
-         String subject = scanner.nextLine();
-
          System.out.println("Enter the group");
          String group = scanner.nextLine();
 
-         teacherController.getTeacherByGroup(subject, group);
+         teacherController.getTeachersByGroup(group);
+     }
+
+     public void removeFromGroup() {
+         System.out.println("Enter the teacher id");
+         int idOfTeacher = scanner.nextInt();
+
+         scanner.nextLine();
+
+         teacherController.removeTeacherFromGroup(idOfTeacher);
      }
 
     private List<Integer> readGrades() {

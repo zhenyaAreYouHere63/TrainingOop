@@ -3,6 +3,7 @@ package com.study.controller;
 import com.study.dao.SubjectType;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
 import com.study.dto.StudentDto;
 import com.study.mapper.StudentMapper;
@@ -15,13 +16,13 @@ import java.util.*;
 public class StudentController implements IdValidator {
     private StudentService studentService;
 
-    public StudentController(StudentList students, StudentMapper studentMapper) {
-        studentService = new StudentServiceImpl(students, studentMapper);
+    public StudentController(StudentList students, StudentMapper studentMapper, GroupList groups) {
+        studentService = new StudentServiceImpl(students, studentMapper, groups);
     }
 
     public void addStudent(StudentDto studentDto) {
         List<Exception> maybeExceptions = StudentDto.validateStudentDto(studentDto.firstName(), studentDto.lastName(),
-                studentDto.specialty(), studentDto.faculty(), studentDto.group(), studentDto.subjects());
+                studentDto.faculty(), studentDto.specialty(), studentDto.group().name(), studentDto.subjects());
 
         if (!maybeExceptions.isEmpty()) {
             System.out.println("Validation errors");
@@ -46,10 +47,7 @@ public class StudentController implements IdValidator {
 
         Set<Subject> subjects = studentService.addStudentToCourse(studentId, subject);
 
-        for (Subject value : subjects) {
-            System.out.println(value);
-        }
-
+        subjects.forEach(System.out::println);
     }
 
     public void getAllSubjectList(int studentId) {
@@ -90,9 +88,8 @@ public class StudentController implements IdValidator {
 
     public void getAllStudentList() {
         List<Student> students = studentService.viewAllStudents();
-        for (Student student : students) {
-            System.out.println(student);
-        }
+
+        students.forEach(System.out::println);
     }
 
     public void validateId(int id) {

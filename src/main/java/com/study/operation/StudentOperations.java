@@ -1,5 +1,6 @@
 package com.study.operation;
 
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
 import com.study.input.ClientStudentInput;
 import com.study.mapper.StudentMapper;
@@ -10,10 +11,10 @@ public class StudentOperations {
     private StudentList students;
     private ClientStudentInput studentInput;
 
-    public StudentOperations(Scanner scanner, StudentList students, StudentMapper studentMapper) {
+    public StudentOperations(Scanner scanner, StudentList students, StudentMapper studentMapper, GroupList groups) {
         this.scanner = scanner;
         this.students = students;
-        studentInput = new ClientStudentInput(scanner, students, studentMapper);
+        studentInput = new ClientStudentInput(scanner, students, studentMapper, groups);
     }
 
     public void displayMenu() {
@@ -48,7 +49,7 @@ public class StudentOperations {
         System.out.println("4 View all list of subjects");
         System.out.println("5 View all the grades");
         System.out.println("6 Get the average score in the subject");
-        System.out.println("7 Delete student");
+        System.out.println("7 Remove student");
         System.out.println("0 Exit");
         System.out.println("_______________");
     }

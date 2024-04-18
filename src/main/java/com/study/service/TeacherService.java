@@ -6,6 +6,7 @@ import com.study.dao.core.Teacher;
 import com.study.dto.TeacherDto;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface TeacherService {
@@ -22,5 +23,7 @@ public interface TeacherService {
 
     Teacher assignTeacherToGroup(int teacherId, String group);
 
-    Teacher getTeacherByGroup(String subjectName, String group);
+    Teacher removeTeacherFromGroup(int teacherId);
+
+    Set<Teacher> getTeacherByGroup(String group);
 }

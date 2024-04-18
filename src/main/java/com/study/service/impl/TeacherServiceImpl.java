@@ -1,6 +1,8 @@
 package com.study.service.impl;
 
+import com.study.dao.core.Group;
 import com.study.dao.core.Subject;
+import com.study.dao.data.GroupList;
 import com.study.dao.data.StudentList;
 import com.study.dao.data.TeacherList;
 import com.study.dao.core.Student;
@@ -12,14 +14,14 @@ import com.study.service.exception.NotFoundException;
 import java.util.*;
 
 public class TeacherServiceImpl implements TeacherService {
-    private final TeacherList teachers;
-    private final Teacher teacher;
+    private TeacherList teachers;
     private StudentList students;
     private TeacherMapper teacherMapper;
+    private GroupList groups;
 
-    public TeacherServiceImpl(StudentList students, TeacherMapper teacherMapper) {
-        this.teacher = new Teacher();
-        this.teachers = new TeacherList();
+    public TeacherServiceImpl(StudentList students, TeacherMapper teacherMapper, GroupList groups, TeacherList teachers) {
+        this.teachers = teachers;
+        this.groups = groups;
         this.students = students;
         this.teacherMapper = teacherMapper;
     }
@@ -39,10 +41,11 @@ public class TeacherServiceImpl implements TeacherService {
 
         List<Student> studentsEnrolledToSubject = new ArrayList<>();
 
-        students.students
+        students.getStudents()
                 .stream()
                 .filter(student -> student.getSubjects().stream()
                         .anyMatch(subject -> subject.getName().equalsIgnoreCase(foundTeacher.getSubject().getName())))
+                .filter(student -> student.getGroup().getName().equals(foundTeacher.getSubject().getName()))
                 .forEach(studentsEnrolledToSubject::add);
 
         return studentsEnrolledToSubject;
@@ -50,6 +53,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public UUID deleteTeacher(int teacherId) {
+        groups.removeTeacherFromGroup(teacherId);
         return teachers.deleteTeacher(teacherId);
     }
 
@@ -62,49 +66,45 @@ public class TeacherServiceImpl implements TeacherService {
 
         HashMap<Subject, List<Integer>> result = new HashMap<>();
 
-        Optional<Subject> optionalSubject = foundStudent.getSubjects().stream()
+        Subject foundSubject = foundStudent.getSubjects().stream()
                 .filter(currentSubject -> currentSubject.getName().equalsIgnoreCase(subject))
-                .findAny();
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("Sorry, this student not study " + subject));
 
-        if (optionalSubject.isEmpty()) {
-            throw new NotFoundException("Sorry, this student not study " + subject);
-        } else {
-            HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
 
-            List<Integer> gradesForSubject = grades
-                    .computeIfAbsent(optionalSubject.get(), k -> new ArrayList<>());
+        HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
 
-            gradesForSubject.addAll(newGrades);
+        List<Integer> gradesForSubject = grades
+                .computeIfAbsent(foundSubject, k -> new ArrayList<>());
 
-            result.put(optionalSubject.get(), gradesForSubject);
+        gradesForSubject.addAll(newGrades);
 
-            return result;
-        }
+        result.put(foundSubject, gradesForSubject);
+
+        return result;
     }
 
     @Override
     public Teacher assignTeacherToGroup(int teacherId, String group) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
-        Subject subject = foundTeacher.getSubject();
+        groups.assignTeacherToGroup(foundTeacher, group);
 
-        if (!subject.isTeacherAssignedToGroup(group, subject.getName())) {
-            teacher.getSubject().assignTeacherToGroup(group, teacher);
-        } else {
-            System.out.println("Error: Another teacher is already assigned to group ");
-        }
-
-        return teacher;
+        return foundTeacher;
     }
+
     @Override
-    public Teacher getTeacherByGroup(String subjectName, String group) {
-        return teachers.teachers.stream()
-                .map(t -> t.getSubject().getTeacherByGroupAndSubject(group, subjectName))
-                .findFirst()
-                .orElse(null);
+    public Teacher removeTeacherFromGroup(int teacherId) {
+        return groups.removeTeacherFromGroup(teacherId);
     }
+
+    @Override
+    public Set<Teacher> getTeacherByGroup(String group) {
+        return groups.getTeacherByGroup(group);
+    }
+
     @Override
     public List<Teacher> viewTeachers() {
-        return teachers.teachers;
+        return teachers.getTeachers();
     }
 }

@@ -1,27 +1,14 @@
 package com.study.dao.data;
 
-import com.study.dao.Counter;
-import com.study.dao.core.Subject;
+import com.study.dao.store.DataProvider;
 import com.study.dao.core.Teacher;
 import com.study.service.exception.NotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class TeacherList {
 
-    private static final Counter counter = Counter.getTeacherInstance();
-    public List<Teacher> teachers;
-
-    public TeacherList() {
-        teachers = new ArrayList<>(Arrays.asList(
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(),"Petro", "Ivaniv", new Subject("Physics")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Larisa", "Volodina", new Subject("Physics")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Tanya", "Sobchuk", new Subject("Math")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Vitalina", "Stepashko", new Subject("Math")),
-                new Teacher(counter.generateTeacherId(), UUID.randomUUID(), "Olesya", "Pochaina", new Subject("English"))));
-    }
+    public List<Teacher> teachers = DataProvider.generateTeachers();
 
     public Teacher findTeacherById(int teacherId) {
         return teachers.stream()
@@ -49,5 +36,9 @@ public class TeacherList {
 
         teachers.remove(teacherToDelete);
         return teacherToDelete.getUuid();
+    }
+
+    public List<Teacher> getTeachers() {
+        return teachers;
     }
 }

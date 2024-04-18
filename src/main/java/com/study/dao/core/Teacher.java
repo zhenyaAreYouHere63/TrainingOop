@@ -7,21 +7,17 @@ import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 import java.util.UUID;
 
-@ToString
 @EqualsAndHashCode
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Teacher {
 
     private int id;
-
     private UUID uuid;
-
     private String firstName;
-
     private String lastName;
-
     private Subject subject;
 
     public Teacher(Integer id, UUID uuid, String firstName, String lastName, Subject subject) {

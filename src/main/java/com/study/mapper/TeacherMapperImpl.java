@@ -1,6 +1,6 @@
 package com.study.mapper;
 
-import com.study.dao.Counter;
+import com.study.dao.IdCounter;
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
 import com.study.dto.SubjectDtoForTeacher;
@@ -8,11 +8,11 @@ import com.study.dto.TeacherDto;
 import java.util.UUID;
 
 public class TeacherMapperImpl implements TeacherMapper {
-    private static final Counter counter = Counter.getTeacherInstance();
+    private static final IdCounter ID_COUNTER = IdCounter.getTeacherInstance();
 
     @Override
     public Teacher mapTeacherDtoToTeacher(TeacherDto teacherDto) {
-        return new Teacher(counter.generateTeacherId(),
+        return new Teacher(ID_COUNTER.generateTeacherId(),
                 UUID.randomUUID(),
                 teacherDto.firstName(),
                 teacherDto.lastName(),
@@ -29,7 +29,7 @@ public class TeacherMapperImpl implements TeacherMapper {
     }
 
     private Subject mapSubjectDtoToSubject(SubjectDtoForTeacher subject) {
-        return new Subject(subject.name());
+        return new Subject(subject.subject());
     }
 
     private SubjectDtoForTeacher mapSubjectToSubjectDto(Subject subject) {
