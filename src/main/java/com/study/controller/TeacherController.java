@@ -37,7 +37,7 @@ public class TeacherController implements IdValidator {
     }
 
     public void deleteTeacher(int teacherId) {
-        UUID deletedTeacherUuid = teacherService.deleteTeacher(teacherId);
+        UUID deletedTeacherUuid = teacherService.removeTeacher(teacherId);
         System.out.println(deletedTeacherUuid);
     }
 
@@ -49,10 +49,10 @@ public class TeacherController implements IdValidator {
         students.forEach(System.out::println);
     }
 
-    public void evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
+    public void evaluateStudent(int teacherId, int studentId, String subject, List<Integer> newGrades) {
         validateId(studentId);
 
-        HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(studentId, subject, newGrades);
+        HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(teacherId, studentId, subject, newGrades);
 
         for (Map.Entry<Subject, List<Integer>> entry : evaluateGradesForSubject.entrySet()) {
             String subjectToEvaluate = entry.getKey().getName();
@@ -84,9 +84,9 @@ public class TeacherController implements IdValidator {
         teachersByGroup.forEach(System.out::println);
     }
 
-    public void removeTeacherFromGroup(int teacherId) {
-        Teacher teacher = teacherService.removeTeacherFromGroup(teacherId);
-        System.out.println("Teacher: " + teacher + " has been removed from the group");
+    public void removeTeacherFromGroup(int teacherId, String group) {
+        Teacher teacher = teacherService.removeTeacherFromGroup(teacherId, group);
+        System.out.println("Teacher: " + teacher + " has been removed from the group " + group);
     }
 
     public void validateId(int id) {

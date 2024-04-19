@@ -39,40 +39,68 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Student> viewEnrolledStudents(int teacherId) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
+        if (!groups.isTeacherAssignedToGroup(teacherId)) {
+            throw new NotFoundException("This teacher " + foundTeacher.getFirstName()
+                                        + " " + foundTeacher.getLastName() + " not joined any group");
+        }
+
         List<Student> studentsEnrolledToSubject = new ArrayList<>();
 
         students.getStudents()
                 .stream()
                 .filter(student -> student.getSubjects().stream()
                         .anyMatch(subject -> subject.getName().equalsIgnoreCase(foundTeacher.getSubject().getName())))
-                .filter(student -> student.getGroup().getName().equals(foundTeacher.getSubject().getName()))
+                .filter(student -> foundTeacher.getGroups().stream().anyMatch(group -> group.getName().equals(student.getGroup().getName())))
                 .forEach(studentsEnrolledToSubject::add);
 
         return studentsEnrolledToSubject;
     }
 
     @Override
-    public UUID deleteTeacher(int teacherId) {
-        groups.removeTeacherFromGroup(teacherId);
+    public UUID removeTeacher(int teacherId) {
+        groups.removeTeacherFromAllGroups(teacherId);
         return teachers.deleteTeacher(teacherId);
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> newGrades) {
+    public HashMap<Subject, List<Integer>> evaluateStudent(int teacherId,
+                                                           int studentId,
+                                                           String subject,
+                                                           List<Integer> newGrades) {
 
         Student foundStudent = students.findStudentById(studentId);
 
-        Teacher foundTeacher = teachers.findTeacherBySubject(subject);
+        Teacher foundTeacher = teachers.findTeacherById(teacherId);
+
+        Group studentGroup = groups.getStudentGroup(foundStudent);
+
+        Set<Group> teacherGroups = groups.getTeacherGroups(foundTeacher);
+
+        if (foundStudent.getSubjects().stream().noneMatch(currentSubject ->
+                currentSubject.getName().equalsIgnoreCase(subject))) {
+            throw new NotFoundException("Sorry, this student not study " + subject);
+        }
+
+        if (!teacherGroups.contains(studentGroup)) {
+            throw new NotFoundException("Sorry, this teacher " + foundTeacher
+                                        + " don't assigned to this group");
+        }
+
+        if (foundStudent.getSubjects().stream()
+                .noneMatch(currentSubject -> currentSubject.getName()
+                        .equals(foundTeacher.getSubject().getName()))) {
+            throw new NotFoundException("Sorry, this teacher " + foundTeacher + " does not teach this subject");
+        }
 
         HashMap<Subject, List<Integer>> result = new HashMap<>();
 
-        Subject foundSubject = foundStudent.getSubjects().stream()
-                .filter(currentSubject -> currentSubject.getName().equalsIgnoreCase(subject))
-                .findAny()
-                .orElseThrow(() -> new NotFoundException("Sorry, this student not study " + subject));
-
-
         HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
+
+        Subject foundSubject = foundStudent.getSubjects().stream().filter(currentSubject ->
+                        currentSubject.getName().equalsIgnoreCase(subject))
+                .findFirst()
+                .orElseThrow(null);
+
 
         List<Integer> gradesForSubject = grades
                 .computeIfAbsent(foundSubject, k -> new ArrayList<>());
@@ -88,19 +116,26 @@ public class TeacherServiceImpl implements TeacherService {
     public Teacher assignTeacherToGroup(int teacherId, String group) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
+        foundTeacher.getGroups().add(new Group(group));
         groups.assignTeacherToGroup(foundTeacher, group);
 
         return foundTeacher;
     }
 
     @Override
-    public Teacher removeTeacherFromGroup(int teacherId) {
-        return groups.removeTeacherFromGroup(teacherId);
+    public Teacher removeTeacherFromGroup(int teacherId, String groupName) {
+        Teacher foundTeacher = teachers.findTeacherById(teacherId);
+
+        groups.removeTeacherFromGroup(teacherId, groupName);
+
+        foundTeacher.getGroups().removeIf(group -> group.getName().equals(groupName));
+
+        return foundTeacher;
     }
 
     @Override
     public Set<Teacher> getTeacherByGroup(String group) {
-        return groups.getTeacherByGroup(group);
+        return groups.getTeachersByGroup(group);
     }
 
     @Override

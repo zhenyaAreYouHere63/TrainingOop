@@ -2,18 +2,13 @@ package com.study.dao.core;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.util.Set;
-import java.util.UUID;
-import java.util.List;
-import java.util.HashMap;
+import java.util.*;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,5 +34,18 @@ public class Student {
         this.group = group;
         this.subjects = subjects;
         this.grades = new HashMap<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(id, student.id) && Objects.equals(uuid, student.uuid) && Objects.equals(firstName, student.firstName) && Objects.equals(lastName, student.lastName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, uuid, firstName, lastName);
     }
 }

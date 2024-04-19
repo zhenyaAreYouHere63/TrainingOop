@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @EqualsAndHashCode
@@ -18,6 +20,7 @@ public class Teacher {
     private UUID uuid;
     private String firstName;
     private String lastName;
+    private Set<Group> groups;
     private Subject subject;
 
     public Teacher(Integer id, UUID uuid, String firstName, String lastName, Subject subject) {
@@ -26,5 +29,6 @@ public class Teacher {
         this.firstName = firstName;
         this.lastName = lastName;
         this.subject = subject;
+        this.groups = new HashSet<>();
     }
 }

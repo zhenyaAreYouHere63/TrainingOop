@@ -57,6 +57,11 @@ public class ClientTeacherInput {
      }
 
      public void gradeStudent() {
+         System.out.println("Enter teacherId");
+         int idOfTeacher = scanner.nextInt();
+
+         scanner.nextLine();
+
          System.out.println("Enter studentId");
          int idOfStudent = scanner.nextInt();
 
@@ -70,7 +75,7 @@ public class ClientTeacherInput {
 
          scanner.nextLine();
 
-         teacherController.evaluateStudent(idOfStudent, subject, grades);
+         teacherController.evaluateStudent(idOfTeacher, idOfStudent, subject, grades);
      }
 
      public void addToGroup() {
@@ -98,7 +103,10 @@ public class ClientTeacherInput {
 
          scanner.nextLine();
 
-         teacherController.removeTeacherFromGroup(idOfTeacher);
+         System.out.println("Enter the group");
+         String group = scanner.nextLine();
+
+         teacherController.removeTeacherFromGroup(idOfTeacher, group);
      }
 
     private List<Integer> readGrades() {

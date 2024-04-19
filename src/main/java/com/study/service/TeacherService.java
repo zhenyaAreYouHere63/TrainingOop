@@ -15,15 +15,15 @@ public interface TeacherService {
 
     List<Student> viewEnrolledStudents(int id);
 
-    UUID deleteTeacher(int teacherId);
+    UUID removeTeacher(int teacherId);
 
-    HashMap<Subject, List<Integer>> evaluateStudent(int studentId, String subject, List<Integer> grades);
+    HashMap<Subject, List<Integer>> evaluateStudent(int teacherId, int studentId, String subject, List<Integer> grades);
 
     List<Teacher> viewTeachers();
 
     Teacher assignTeacherToGroup(int teacherId, String group);
 
-    Teacher removeTeacherFromGroup(int teacherId);
+    Teacher removeTeacherFromGroup(int teacherId, String group);
 
     Set<Teacher> getTeacherByGroup(String group);
 }

@@ -1,5 +1,6 @@
 package com.study.dao.data;
 
+import com.study.dao.core.Group;
 import com.study.dao.core.Student;
 import com.study.dao.store.DataProvider;
 import com.study.service.exception.NotFoundException;
@@ -19,6 +20,10 @@ public class StudentList {
                 .filter(student -> student.getId() == studentId)
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Student with id " + studentId + " not found"));
+    }
+
+    public Group findGroupByStudent(Student student) {
+        return student.getGroup();
     }
 
     public UUID addStudent(Student student) {

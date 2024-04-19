@@ -35,7 +35,7 @@ public class StudentServiceImpl implements StudentService {
     public UUID createStudent(StudentDto studentDto) {
         Student mappedStudent = studentMapper.mapStudentDtoToStudent(studentDto);
 
-        groups.addStudentToGroup(mappedStudent);
+        groups.assignStudentToGroup(mappedStudent);
 
         checkedExceededSubjects(mappedStudent);
 
@@ -46,8 +46,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public UUID deleteStudent(int studentId) {
 
-         groups.removeStudentFromGroup(studentId);
-         return students.deleteStudent(studentId);
+        groups.removeStudentFromGroup(studentId);
+        return students.deleteStudent(studentId);
     }
 
     @Override
