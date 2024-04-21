@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ClientStudentInput {
+
     private Scanner scanner;
     private StudentController studentController;
 
@@ -45,30 +46,28 @@ public class ClientStudentInput {
 
     public void deleteStudent() {
         System.out.println("Enter id of student");
-        int id = scanner.nextInt();
+        String id = scanner.nextLine();
 
         studentController.deleteStudent(id);
     }
 
     public void viewAllSubject() {
         System.out.println("Enter id of student");
-        int id = scanner.nextInt();
+        String id = scanner.nextLine();
 
         studentController.getAllSubjectList(id);
     }
 
     public void viewAllGrades() {
         System.out.println("Enter id of student");
-        int id = scanner.nextInt();
+        String id = scanner.nextLine();
 
         studentController.getAllGrades(id);
     }
 
     public void getAverageGrade() {
         System.out.println("Enter id of student");
-        int id = scanner.nextInt();
-
-        scanner.nextLine();
+        String id = scanner.nextLine();
 
         System.out.println("Enter subject subject");
         String subject = scanner.nextLine();
@@ -78,9 +77,7 @@ public class ClientStudentInput {
 
     public void addToCourse() {
         System.out.println("Enter id of student");
-        int id = scanner.nextInt();
-
-        scanner.nextLine();
+        String id = scanner.nextLine();
 
         System.out.println("Enter subject subject");
         String subjectName = scanner.nextLine();

@@ -12,15 +12,15 @@ public interface StudentService {
 
     UUID createStudent(StudentDto studentDto);
 
-    UUID deleteStudent(int studentId);
+    UUID deleteStudent(String studentId);
 
-    Set<Subject> addStudentToCourse(int studentId, Subject subject);
+    Set<Subject> addStudentToCourse(String studentId, Subject subject);
 
-    Set<Subject> viewAllSubjects(int studentId);
+    Set<Subject> viewAllSubjects(String studentId);
 
-    HashMap<Subject, List<Integer>> viewAllGrades(int studentId);
+    HashMap<Subject, List<Integer>> viewAllGrades(String studentId);
 
-    Double averageGradeOfSubject(int studentId, String subjectName);
+    Double averageGradeOfSubject(String studentId, String subjectName);
 
     List<Student> viewAllStudents();
 }

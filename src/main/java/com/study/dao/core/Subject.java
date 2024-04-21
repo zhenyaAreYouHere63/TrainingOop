@@ -33,29 +33,6 @@ public class Subject {
         this.name = name;
     }
 
-//    public void assignTeacherToGroup(String group, Teacher teacher) {
-//        if(!isTeacherAssignedToGroup(group, teacher.getSubject().getName())) {
-//            teachersByGroup.put(group, teacher);
-//        } else {
-//            throw new RepeatException("A teacher is already assigned to this name for the subject");
-//        }
-//    }
-//
-//    public Teacher getTeacherByGroupAndSubject(String group, String subject) {
-//        return teachersByGroup.values()
-//                .stream()
-//                .filter(teacher -> teacher.getSubject().getName().equals(subject) &&
-//                        teacher.getSubject().isTeacherAssignedToGroup(group, subject))
-//                .findFirst()
-//                .orElseThrow(() -> new NotFoundException("Not found teacher to this name for the subject"));
-//    }
-//
-//    public boolean isTeacherAssignedToGroup(String group, String subject) {
-//        Teacher teacher = teachersByGroup.get(group);
-//        if (teacher != null && teacher.getSubject().getName().equals(subject)) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
+
+
 }

@@ -11,7 +11,6 @@ import com.study.service.StudentService;
 import com.study.service.exception.MaxSubjectException;
 import com.study.service.exception.RepeatException;
 import java.util.UUID;
-import java.util.Optional;
 import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
@@ -35,63 +34,60 @@ public class StudentServiceImpl implements StudentService {
     public UUID createStudent(StudentDto studentDto) {
         Student mappedStudent = studentMapper.mapStudentDtoToStudent(studentDto);
 
+        checkedExceededSubjects(mappedStudent);
         groups.assignStudentToGroup(mappedStudent);
 
-        checkedExceededSubjects(mappedStudent);
-
         return students.addStudent(mappedStudent);
-
     }
 
     @Override
-    public UUID deleteStudent(int studentId) {
-
+    public UUID deleteStudent(String studentId) {
         groups.removeStudentFromGroup(studentId);
         return students.deleteStudent(studentId);
     }
 
     @Override
-    public Set<Subject> addStudentToCourse(int studentId, Subject subject) {
+    public Set<Subject> addStudentToCourse(String studentId, Subject subject) {
         Student foundStudent = students.findStudentById(studentId);
 
         Set<Subject> studentSubjects = foundStudent.getSubjects();
 
-        Optional<Subject> maybeRepeatSubject = studentSubjects.stream().filter(foundSubject ->
+        studentSubjects.stream().filter(foundSubject ->
                         foundSubject.getName().equalsIgnoreCase(subject.getName()))
-                .findFirst();
-
-        if (maybeRepeatSubject.isPresent()) {
-            throw new RepeatException("Student with id " + studentId + " is already studying this subject");
-        }
+                .findFirst()
+                .ifPresent(foundSubject -> {
+                    throw new RepeatException("Student with id " + studentId + " is already studying this subject");
+                });
 
         checkedExceededSubjects(foundStudent);
 
         foundStudent.getSubjects().add(subject);
-
         return foundStudent.getSubjects();
     }
 
     @Override
-    public Set<Subject> viewAllSubjects(int studentId) {
+    public Set<Subject> viewAllSubjects(String studentId) {
         return students.findStudentById(studentId).getSubjects();
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> viewAllGrades(int studentId) {
+    public HashMap<Subject, List<Integer>> viewAllGrades(String studentId) {
         return students.findStudentById(studentId).getGrades();
     }
 
     @Override
-    public Double averageGradeOfSubject(int studentId, String subject) {
+    public Double averageGradeOfSubject(String studentId, String subject) {
         Student foundStudent = students.findStudentById(studentId);
 
         Map<Subject, List<Integer>> studentGrades = foundStudent.getGrades();
 
-        return studentGrades.entrySet().stream().filter(currentSubject -> currentSubject
+        double averageGrade = studentGrades.entrySet().stream().filter(currentSubject -> currentSubject
                         .getKey().getName().equalsIgnoreCase(subject))
                 .flatMapToInt(entry -> entry.getValue().stream().mapToInt(Integer::intValue))
                 .average()
                 .orElse(0.0);
+
+        return Double.parseDouble(String.format("%.2f", averageGrade));
     }
 
     @Override

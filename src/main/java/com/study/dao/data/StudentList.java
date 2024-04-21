@@ -15,9 +15,9 @@ public class StudentList {
         this.students = DataProvider.generateStudents();
     }
 
-    public Student findStudentById(int studentId) {
+    public Student findStudentById(String studentId) {
         return students.stream()
-                .filter(student -> student.getId() == studentId)
+                .filter(student -> student.getUuid().equals(UUID.fromString(studentId)))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Student with id " + studentId + " not found"));
     }
@@ -31,8 +31,8 @@ public class StudentList {
         return student.getUuid();
     }
 
-    public UUID deleteStudent(int studentId) {
-        Student studentToRemove = students.stream().filter(student -> student.getId() == studentId)
+    public UUID deleteStudent(String studentId) {
+        Student studentToRemove = students.stream().filter(student -> student.getUuid().equals(UUID.fromString(studentId)))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Student with id " + studentId + " not found"));
 
@@ -46,9 +46,5 @@ public class StudentList {
 
     public List<Student> getStudents() {
         return students;
-    }
-
-    public void setStudents(List<Student> students) {
-        this.students = students;
     }
 }

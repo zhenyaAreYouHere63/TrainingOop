@@ -13,7 +13,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class Teacher {
 
     private int id;
@@ -30,5 +29,16 @@ public class Teacher {
         this.lastName = lastName;
         this.subject = subject;
         this.groups = new HashSet<>();
+    }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+               "firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
+               ", groups=" + groups +
+               ", subject=" + subject +
+               ", uuid=" + uuid +
+               '}';
     }
 }

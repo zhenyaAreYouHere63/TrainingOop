@@ -13,7 +13,7 @@ public record SubjectDtoForStudent(String subject,
         } if (subjectType == null) {
             throw new IllegalArgumentException("This field subjectType cannot be null");
         } if (!DataProvider.getLearningsSubject().contains(subject)) {
-            throw new NotFoundException("This subject " + subject + " not exist");
+            throw new NotFoundException("This subject [" + subject + "] not exist");
         }
     }
 }

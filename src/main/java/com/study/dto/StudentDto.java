@@ -28,9 +28,9 @@ public record StudentDto(
         } if (specialty.isBlank()) {
             errors.add(new IllegalArgumentException("The field specialty cannot be blank"));
         } if (!DataProvider.getExistFaculties().contains(faculty)) {
-            errors.add(new NotFoundException("This faculty " + faculty + " not exist"));
+            errors.add(new NotFoundException("This faculty [" + faculty + "] not exist"));
         } if (!DataProvider.getExistSpecialties().contains(specialty)) {
-            errors.add(new NotFoundException("This specialty " + specialty + " not exist"));
+            errors.add(new NotFoundException("This specialty [" + specialty + "] not exist"));
         }
 
         List<Exception> validateSubjects = validateSubjects(subjectDtoForStudents);

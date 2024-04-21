@@ -13,17 +13,17 @@ public interface TeacherService {
 
     UUID createNewTeacher(TeacherDto teacherDto);
 
-    List<Student> viewEnrolledStudents(int id);
+    List<Student> viewEnrolledStudents(String id);
 
-    UUID removeTeacher(int teacherId);
+    UUID removeTeacher(String teacherId);
 
-    HashMap<Subject, List<Integer>> evaluateStudent(int teacherId, int studentId, String subject, List<Integer> grades);
+    HashMap<Subject, List<Integer>> evaluateStudent(String teacherId, String studentId, List<Integer> grades);
 
     List<Teacher> viewTeachers();
 
-    Teacher assignTeacherToGroup(int teacherId, String group);
+    Teacher assignTeacherToGroup(String teacherId, String group);
 
-    Teacher removeTeacherFromGroup(int teacherId, String group);
+    Teacher removeTeacherFromGroup(String teacherId, String group);
 
     Set<Teacher> getTeacherByGroup(String group);
 }

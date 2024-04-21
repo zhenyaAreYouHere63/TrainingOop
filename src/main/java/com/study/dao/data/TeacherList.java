@@ -10,9 +10,9 @@ public class TeacherList {
 
     public List<Teacher> teachers = DataProvider.generateTeachers();
 
-    public Teacher findTeacherById(int teacherId) {
+    public Teacher findTeacherById(String teacherId) {
         return teachers.stream()
-                .filter(student -> student.getId() == teacherId)
+                .filter(student -> student.getUuid().equals(UUID.fromString(teacherId)))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Teacher with id " + teacherId + " not found"));
     }
@@ -29,8 +29,8 @@ public class TeacherList {
         return teacher;
     }
 
-    public UUID deleteTeacher(int teacherId) {
-        Teacher teacherToDelete = teachers.stream().filter(teacher -> teacher.getId() == teacherId)
+    public UUID deleteTeacher(String teacherId) {
+        Teacher teacherToDelete = teachers.stream().filter(teacher -> teacher.getUuid().equals(UUID.fromString(teacherId)))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Teacher with id " + teacherId + " not found"));
 

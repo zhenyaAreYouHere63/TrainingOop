@@ -14,9 +14,9 @@ public record GroupDto(
         List<Exception> errors = new ArrayList<>();
 
         if (group.isBlank()) {
-            errors.add(new IllegalArgumentException("The field name cannot be blank"));
+            errors.add(new IllegalArgumentException("The field group cannot be blank"));
         } if (DataProvider.getGroups().stream().noneMatch(existGroup -> existGroup.getName().equals(group))) {
-            errors.add(new NotFoundException("This name " + group + " not exist"));
+            errors.add(new NotFoundException("This group [" + group + "] not exist"));
         }
         return errors;
     }

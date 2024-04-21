@@ -11,7 +11,7 @@ public record SubjectDtoForTeacher(
         if (subject.isBlank()) {
             throw new IllegalArgumentException("The field subject cannot be blank");
         } if (!DataProvider.getLearningsSubject().contains(subject)) {
-            throw new NotFoundException("This subject " + subject + " not found");
+            throw new NotFoundException("This subject [" + subject + "] not exist");
         }
     }
 }

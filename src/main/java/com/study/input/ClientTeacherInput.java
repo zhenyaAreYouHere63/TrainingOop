@@ -38,18 +38,16 @@ public class ClientTeacherInput {
 
     public void deleteTeacher() {
         System.out.println("Enter teacherId");
-        int teacherId = scanner.nextInt();
+        String id = scanner.nextLine();
 
-        teacherController.deleteTeacher(teacherId);
+        teacherController.deleteTeacher(id);
     }
 
     public void viewAllStudentsAttachedInSubject() {
         System.out.println("Enter id");
-        int teacherId = scanner.nextInt();
+        String id = scanner.nextLine();
 
-        scanner.nextLine();
-
-        teacherController.getAllStudentsForTeacherSubject(teacherId);
+        teacherController.getAllStudentsForTeacherSubject(id);
      }
 
      public void viewAllTeachers() {
@@ -58,36 +56,27 @@ public class ClientTeacherInput {
 
      public void gradeStudent() {
          System.out.println("Enter teacherId");
-         int idOfTeacher = scanner.nextInt();
-
-         scanner.nextLine();
+         String idOfTeacher = scanner.nextLine();
 
          System.out.println("Enter studentId");
-         int idOfStudent = scanner.nextInt();
-
-         scanner.nextLine();
-
-         System.out.println("Enter the subject");
-         String subject = scanner.nextLine();
+         String idOfStudent = scanner.nextLine();
 
          System.out.println("Enter grade of subject or write '-1' to finish");
          List<Integer> grades = readGrades();
 
          scanner.nextLine();
 
-         teacherController.evaluateStudent(idOfTeacher, idOfStudent, subject, grades);
+         teacherController.evaluateStudent(idOfTeacher, idOfStudent, grades);
      }
 
      public void addToGroup() {
          System.out.println("Enter teacherId");
-         int idOfTeacher = scanner.nextInt();
-
-         scanner.nextLine();
+         String id = scanner.nextLine();
 
          System.out.println("Enter the group name");
          String group = scanner.nextLine();
 
-         teacherController.addTeacherToGroup(idOfTeacher, group);
+         teacherController.addTeacherToGroup(id, group);
      }
 
      public void getByGroup() {
@@ -99,14 +88,12 @@ public class ClientTeacherInput {
 
      public void removeFromGroup() {
          System.out.println("Enter the teacher id");
-         int idOfTeacher = scanner.nextInt();
-
-         scanner.nextLine();
+         String id = scanner.nextLine();
 
          System.out.println("Enter the group");
          String group = scanner.nextLine();
 
-         teacherController.removeTeacherFromGroup(idOfTeacher, group);
+         teacherController.removeTeacherFromGroup(id, group);
      }
 
     private List<Integer> readGrades() {

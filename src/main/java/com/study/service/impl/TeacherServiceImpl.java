@@ -36,7 +36,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Student> viewEnrolledStudents(int teacherId) {
+    public List<Student> viewEnrolledStudents(String teacherId) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         if (!groups.isTeacherAssignedToGroup(teacherId)) {
@@ -57,27 +57,26 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public UUID removeTeacher(int teacherId) {
+    public UUID removeTeacher(String teacherId) {
         groups.removeTeacherFromAllGroups(teacherId);
         return teachers.deleteTeacher(teacherId);
     }
 
     @Override
-    public HashMap<Subject, List<Integer>> evaluateStudent(int teacherId,
-                                                           int studentId,
-                                                           String subject,
+    public HashMap<Subject, List<Integer>> evaluateStudent(String teacherId,
+                                                           String studentId,
                                                            List<Integer> newGrades) {
 
         Student foundStudent = students.findStudentById(studentId);
-
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         Group studentGroup = groups.getStudentGroup(foundStudent);
-
         Set<Group> teacherGroups = groups.getTeacherGroups(foundTeacher);
 
+        Subject subject = foundTeacher.getSubject();
+
         if (foundStudent.getSubjects().stream().noneMatch(currentSubject ->
-                currentSubject.getName().equalsIgnoreCase(subject))) {
+                currentSubject.getName().equalsIgnoreCase(subject.getName()))) {
             throw new NotFoundException("Sorry, this student not study " + subject);
         }
 
@@ -96,24 +95,17 @@ public class TeacherServiceImpl implements TeacherService {
 
         HashMap<Subject, List<Integer>> grades = foundStudent.getGrades();
 
-        Subject foundSubject = foundStudent.getSubjects().stream().filter(currentSubject ->
-                        currentSubject.getName().equalsIgnoreCase(subject))
-                .findFirst()
-                .orElseThrow(null);
-
-
         List<Integer> gradesForSubject = grades
-                .computeIfAbsent(foundSubject, k -> new ArrayList<>());
+                .computeIfAbsent(subject, k -> new ArrayList<>());
 
         gradesForSubject.addAll(newGrades);
-
-        result.put(foundSubject, gradesForSubject);
+        result.put(subject, gradesForSubject);
 
         return result;
     }
 
     @Override
-    public Teacher assignTeacherToGroup(int teacherId, String group) {
+    public Teacher assignTeacherToGroup(String teacherId, String group) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         foundTeacher.getGroups().add(new Group(group));
@@ -123,11 +115,10 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public Teacher removeTeacherFromGroup(int teacherId, String groupName) {
+    public Teacher removeTeacherFromGroup(String teacherId, String groupName) {
         Teacher foundTeacher = teachers.findTeacherById(teacherId);
 
         groups.removeTeacherFromGroup(teacherId, groupName);
-
         foundTeacher.getGroups().removeIf(group -> group.getName().equals(groupName));
 
         return foundTeacher;

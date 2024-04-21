@@ -8,13 +8,12 @@ import com.study.dao.data.StudentList;
 import com.study.dto.StudentDto;
 import com.study.mapper.StudentMapper;
 import com.study.service.StudentService;
-import com.study.service.exception.IncorrectIdException;
 import com.study.service.impl.StudentServiceImpl;
 import com.study.service.validation.IdValidator;
 import java.util.*;
 
 public class StudentController implements IdValidator {
-    private StudentService studentService;
+    private final StudentService studentService;
 
     public StudentController(StudentList students, StudentMapper studentMapper, GroupList groups) {
         studentService = new StudentServiceImpl(students, studentMapper, groups);
@@ -36,13 +35,12 @@ public class StudentController implements IdValidator {
         System.out.println(studentUuid);
     }
 
-    public void deleteStudent(int studentId) {
+    public void deleteStudent(String studentId) {
         UUID studentUuid = studentService.deleteStudent(studentId);
         System.out.println(studentUuid);
     }
 
-    public void addStudentToCourse(int studentId, Subject subject) {
-
+    public void addStudentToCourse(String studentId, Subject subject) {
         validateId(studentId);
 
         Set<Subject> subjects = studentService.addStudentToCourse(studentId, subject);
@@ -50,7 +48,7 @@ public class StudentController implements IdValidator {
         subjects.forEach(System.out::println);
     }
 
-    public void getAllSubjectList(int studentId) {
+    public void getAllSubjectList(String studentId) {
         validateId(studentId);
 
         Set<Subject> subjectsForStudent = studentService.viewAllSubjects(studentId);
@@ -68,7 +66,7 @@ public class StudentController implements IdValidator {
                 .forEach(System.out::println);
     }
 
-    public void getAllGrades(int studentId) {
+    public void getAllGrades(String studentId) {
         validateId(studentId);
 
         HashMap<Subject, List<Integer>> gradesForSubject = studentService.viewAllGrades(studentId);
@@ -79,7 +77,7 @@ public class StudentController implements IdValidator {
         });
     }
 
-    public void getAverageGrade(int studentId, String subject) {
+    public void getAverageGrade(String studentId, String subject) {
         validateId(studentId);
 
         Double averageGrade = studentService.averageGradeOfSubject(studentId, subject);
@@ -92,9 +90,8 @@ public class StudentController implements IdValidator {
         students.forEach(System.out::println);
     }
 
-    public void validateId(int id) {
-        if (id <= 0) {
-            throw new IncorrectIdException("Id cannot be less than 1");
-        }
+    public void validateId(String id) {
+        if (id.isBlank())
+            throw new IllegalArgumentException("id cannot be empty or null");
     }
 }

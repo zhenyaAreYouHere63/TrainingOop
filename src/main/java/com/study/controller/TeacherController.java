@@ -36,12 +36,12 @@ public class TeacherController implements IdValidator {
         System.out.println(teacherUuid);
     }
 
-    public void deleteTeacher(int teacherId) {
+    public void deleteTeacher(String teacherId) {
         UUID deletedTeacherUuid = teacherService.removeTeacher(teacherId);
         System.out.println(deletedTeacherUuid);
     }
 
-    public void getAllStudentsForTeacherSubject(int teacherId) {
+    public void getAllStudentsForTeacherSubject(String teacherId) {
         validateId(teacherId);
 
         List<Student> students = teacherService.viewEnrolledStudents(teacherId);
@@ -49,10 +49,10 @@ public class TeacherController implements IdValidator {
         students.forEach(System.out::println);
     }
 
-    public void evaluateStudent(int teacherId, int studentId, String subject, List<Integer> newGrades) {
+    public void evaluateStudent(String teacherId, String studentId, List<Integer> newGrades) {
         validateId(studentId);
 
-        HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(teacherId, studentId, subject, newGrades);
+        HashMap<Subject, List<Integer>> evaluateGradesForSubject = teacherService.evaluateStudent(teacherId, studentId, newGrades);
 
         for (Map.Entry<Subject, List<Integer>> entry : evaluateGradesForSubject.entrySet()) {
             String subjectToEvaluate = entry.getKey().getName();
@@ -72,7 +72,7 @@ public class TeacherController implements IdValidator {
         teachers.forEach(System.out::println);
     }
 
-    public void addTeacherToGroup(int teacherId, String group) {
+    public void addTeacherToGroup(String teacherId, String group) {
         validateId(teacherId);
 
         Teacher teacher = teacherService.assignTeacherToGroup(teacherId, group);
@@ -84,14 +84,13 @@ public class TeacherController implements IdValidator {
         teachersByGroup.forEach(System.out::println);
     }
 
-    public void removeTeacherFromGroup(int teacherId, String group) {
+    public void removeTeacherFromGroup(String teacherId, String group) {
         Teacher teacher = teacherService.removeTeacherFromGroup(teacherId, group);
         System.out.println("Teacher: " + teacher + " has been removed from the group " + group);
     }
 
-    public void validateId(int id) {
-        if (id <= 0) {
-            throw new IncorrectIdException("Id cannot be less than 1");
-        }
+    public void validateId(String id) {
+        if (id.isBlank())
+            throw new IllegalArgumentException("id cannot be empty or null");
     }
 }

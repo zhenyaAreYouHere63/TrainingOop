@@ -9,7 +9,6 @@ import java.util.*;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
@@ -47,5 +46,18 @@ public class Student {
     @Override
     public int hashCode() {
         return Objects.hash(id, uuid, firstName, lastName);
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+               "uuid=" + uuid +
+               ", firstName='" + firstName + '\'' +
+               ", lastName='" + lastName + '\'' +
+               ", faculty='" + faculty + '\'' +
+               ", specialty='" + specialty + '\'' +
+               ", group=" + group +
+               ", subjects=" + subjects +
+               '}';
     }
 }

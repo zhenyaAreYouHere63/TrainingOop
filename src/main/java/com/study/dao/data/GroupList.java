@@ -6,10 +6,10 @@ import com.study.dao.core.Teacher;
 import com.study.dao.store.DataProvider;
 import com.study.service.exception.NotFoundException;
 import com.study.service.exception.RepeatException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class GroupList {
@@ -36,17 +36,18 @@ public class GroupList {
         });
     }
 
-    public void removeStudentFromGroup(int studentId) {
-        Student studentToRemove = listOfStudents.getStudents().stream().filter(student -> student.getId() == studentId)
+    public void removeStudentFromGroup(String studentId) {
+        Student studentToRemove = listOfStudents.getStudents().stream().filter(student -> student.getUuid()
+                        .equals(UUID.fromString(studentId)))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Student with id " + studentId + " not found"));
 
-        Group group = findGroupByName(studentToRemove.getGroup().getName());
+        Group group = getGroupByName(studentToRemove.getGroup().getName());
         group.getStudents().remove(studentToRemove);
     }
 
     public void assignTeacherToGroup(Teacher teacher, String group) {
-        Group foundGroup = findGroupByName(group);
+        Group foundGroup = getGroupByName(group);
 
         if (foundGroup.getTeachers().stream().anyMatch(currentTeacher -> currentTeacher.getSubject().getName()
                 .equals(teacher.getSubject().getName()))) {
@@ -56,11 +57,11 @@ public class GroupList {
         foundGroup.getTeachers().add(teacher);
     }
 
-    public Teacher removeTeacherFromGroup(int teacherId, String groupName) {
+    public Teacher removeTeacherFromGroup(String teacherId, String groupName) {
 
         Teacher teacherToRemove = listOfTeachers.findTeacherById(teacherId);
 
-        Group foundGroup = findGroupByName(teacherToRemove.getGroups()
+        Group foundGroup = getGroupByName(teacherToRemove.getGroups()
                 .stream().filter(group -> group.getName().equals(groupName))
                 .findFirst()
                 .map(Group::getName)
@@ -72,7 +73,7 @@ public class GroupList {
         return teacherToRemove;
     }
 
-    public void removeTeacherFromAllGroups(int teacherId) {
+    public void removeTeacherFromAllGroups(String teacherId) {
         Teacher teacherToRemove = listOfTeachers.findTeacherById(teacherId);
 
         groups.stream()
@@ -81,20 +82,13 @@ public class GroupList {
     }
 
     public Set<Teacher> getTeachersByGroup(String group) {
-        Group foundGroup = findGroupByName(group);
+        Group foundGroup = getGroupByName(group);
         return foundGroup.getTeachers();
     }
 
-    public boolean isTeacherAssignedToGroup(int teacherId) {
+    public boolean isTeacherAssignedToGroup(String teacherId) {
         return groups.stream().anyMatch(group -> group.getTeachers().stream().anyMatch(teacher
-                -> teacher.getId() == teacherId));
-    }
-
-    private Group findGroupByName(String name) {
-        return groups.stream().filter(
-                        group -> group.getName().equals(name))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Group with name " + name + " not found"));
+                -> teacher.getUuid() == UUID.fromString(teacherId)));
     }
 
     public Group getStudentGroup(Student student) {
@@ -107,5 +101,12 @@ public class GroupList {
     public Set<Group> getTeacherGroups(Teacher teacher) {
         return groups.stream().filter(group -> group.getTeachers().contains(teacher))
                 .collect(Collectors.toSet());
+    }
+
+    private Group getGroupByName(String name) {
+        return groups.stream().filter(
+                        group -> group.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Group with name " + name + " not found"));
     }
 }
