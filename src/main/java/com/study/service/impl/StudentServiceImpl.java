@@ -56,7 +56,8 @@ public class StudentServiceImpl implements StudentService {
                         foundSubject.getName().equalsIgnoreCase(subject.getName()))
                 .findFirst()
                 .ifPresent(foundSubject -> {
-                    throw new RepeatException("Student with id " + studentId + " is already studying this subject");
+                    throw new RepeatException("Student with id " + studentId +
+                                              " is already studying this subject");
                 });
 
         checkedExceededSubjects(foundStudent);

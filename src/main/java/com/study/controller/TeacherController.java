@@ -9,7 +9,6 @@ import com.study.dao.data.TeacherList;
 import com.study.dto.TeacherDto;
 import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
-import com.study.service.exception.IncorrectIdException;
 import com.study.service.impl.TeacherServiceImpl;
 import com.study.service.validation.IdValidator;
 import java.util.*;
@@ -80,7 +79,7 @@ public class TeacherController implements IdValidator {
     }
 
     public void getTeachersByGroup(String group) {
-        Set<Teacher> teachersByGroup = teacherService.getTeacherByGroup(group);
+        Set<Teacher> teachersByGroup = teacherService.getTeachersByGroup(group);
         teachersByGroup.forEach(System.out::println);
     }
 

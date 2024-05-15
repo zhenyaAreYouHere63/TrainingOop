@@ -125,7 +125,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public Set<Teacher> getTeacherByGroup(String group) {
+    public Set<Teacher> getTeachersByGroup(String group) {
         return groups.getTeachersByGroup(group);
     }
 

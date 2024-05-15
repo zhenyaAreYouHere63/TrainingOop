@@ -25,5 +25,5 @@ public interface TeacherService {
 
     Teacher removeTeacherFromGroup(String teacherId, String group);
 
-    Set<Teacher> getTeacherByGroup(String group);
+    Set<Teacher> getTeachersByGroup(String group);
 }
