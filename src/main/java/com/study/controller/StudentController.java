@@ -10,7 +10,10 @@ import com.study.mapper.StudentMapper;
 import com.study.service.StudentService;
 import com.study.service.impl.StudentServiceImpl;
 import com.study.service.validation.IdValidator;
-import java.util.*;
+import java.util.UUID;
+import java.util.List;
+import java.util.Set;
+import java.util.HashMap;
 
 public class StudentController implements IdValidator {
     private final StudentService studentService;
@@ -20,12 +23,12 @@ public class StudentController implements IdValidator {
     }
 
     public void addStudent(StudentDto studentDto) {
-        List<Exception> maybeExceptions = StudentDto.validateStudentDto(studentDto.firstName(), studentDto.lastName(),
+        List<Exception> validationExceptions = StudentDto.validateStudentDto(studentDto.firstName(), studentDto.lastName(),
                 studentDto.faculty(), studentDto.specialty(), studentDto.group().name(), studentDto.subjects());
 
-        if (!maybeExceptions.isEmpty()) {
+        if (!validationExceptions.isEmpty()) {
             System.out.println("Validation errors");
-            for(Exception exception: maybeExceptions) {
+            for(Exception exception: validationExceptions) {
                 System.out.println(exception);;
             }
             return;

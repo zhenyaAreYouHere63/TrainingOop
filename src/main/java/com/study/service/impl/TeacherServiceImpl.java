@@ -11,7 +11,11 @@ import com.study.dto.TeacherDto;
 import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
 import com.study.service.exception.NotFoundException;
-import java.util.*;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 public class TeacherServiceImpl implements TeacherService {
     private TeacherList teachers;
@@ -83,12 +87,6 @@ public class TeacherServiceImpl implements TeacherService {
         if (!teacherGroups.contains(studentGroup)) {
             throw new NotFoundException("Sorry, this teacher " + foundTeacher
                                         + " don't assigned to this group");
-        }
-
-        if (foundStudent.getSubjects().stream()
-                .noneMatch(currentSubject -> currentSubject.getName()
-                        .equals(foundTeacher.getSubject().getName()))) {
-            throw new NotFoundException("Sorry, this teacher " + foundTeacher + " does not teach this subject");
         }
 
         HashMap<Subject, List<Integer>> result = new HashMap<>();

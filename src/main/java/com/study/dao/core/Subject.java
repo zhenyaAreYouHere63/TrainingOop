@@ -1,15 +1,13 @@
 package com.study.dao.core;
 
 import com.study.dao.SubjectType;
-import com.study.service.exception.NotFoundException;
-import com.study.service.exception.RepeatException;
+import java.util.Map;
+import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import java.util.Map;
-import java.util.HashMap;
 
 @EqualsAndHashCode
 @NoArgsConstructor
@@ -32,7 +30,4 @@ public class Subject {
     public Subject(String name) {
         this.name = name;
     }
-
-
-
 }

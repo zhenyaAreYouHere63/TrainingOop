@@ -38,28 +38,4 @@ public class StudentMapperImpl implements StudentMapper {
     private Group mapGroupDtoToGroup(GroupDto groupDto) {
         return new Group(groupDto.name());
     }
-
-    @Override
-    public StudentDto mapStudentToStudentDto(Student student) {
-        return new StudentDto(
-                student.getFirstName(),
-                student.getLastName(),
-                student.getFaculty(),
-                student.getSpecialty(),
-                mapGroupToGroupDto(student.getGroup()),
-                mapSubjectsToSubjectDto(student.getSubjects())
-        );
-    }
-
-    private Set<SubjectDtoForStudent> mapSubjectsToSubjectDto(Set<Subject> subjects) {
-        Set<SubjectDtoForStudent> subjectDtoForStudents = new HashSet<>();
-        for(Subject subject: subjects) {
-            subjectDtoForStudents.add(new SubjectDtoForStudent(subject.getName(), subject.getType()));
-        }
-        return subjectDtoForStudents;
-    }
-
-    private GroupDto mapGroupToGroupDto(Group group) {
-        return new GroupDto(group.getName());
-    }
 }

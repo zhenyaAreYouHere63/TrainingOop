@@ -5,17 +5,25 @@ import com.study.dao.core.Group;
 import com.study.dao.core.Student;
 import com.study.dao.core.Subject;
 import com.study.dao.core.Teacher;
-import com.study.dto.SubjectDtoForTeacher;
 import com.study.dto.TeacherDto;
+import com.study.dto.SubjectDtoForTeacher;
 import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.*;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.HashMap;
+import java.util.HashSet;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class TeacherControllerTest {
@@ -31,13 +39,18 @@ class TeacherControllerTest {
 
     private TeacherDto teacherDto;
 
-    @Test
-    void addTeacher_shouldCreateTeacherAndReturnId() {
-        UUID randomUuid = UUID.randomUUID();
+    private String teacherId;
+
+    @BeforeEach
+    public void setUpData() {
+        teacherId = UUID.randomUUID().toString();
 
         teacherDto = new TeacherDto("userName", "lastName", new SubjectDtoForTeacher("History"));
+    }
 
-        when(teacherService.createNewTeacher(teacherDto)).thenReturn(randomUuid);
+    @Test
+    void addTeacher_shouldCreateTeacherAndReturnId() {
+        when(teacherService.createNewTeacher(teacherDto)).thenReturn(UUID.fromString(teacherId));
 
         teacherService.createNewTeacher(teacherDto);
 
@@ -46,45 +59,38 @@ class TeacherControllerTest {
 
     @Test
     void deleteTeacher_shouldDeleteTeacherAndReturnId() {
-        String randomUuid = UUID.randomUUID().toString();
+        teacherService.removeTeacher(teacherId);
 
-        when(teacherService.removeTeacher(randomUuid)).thenReturn(UUID.fromString(randomUuid));
-
-        teacherService.removeTeacher(randomUuid);
-
-        verify(teacherService, times(1)).removeTeacher(randomUuid);
+        verify(teacherService, times(1)).removeTeacher(teacherId);
     }
 
     @Test
     void getAllStudentsForTeacherSubject_shouldGetAllStudentsForTeacherSubject() {
-        String randomUuid = UUID.randomUUID().toString();
-
         List<Student> students = new ArrayList<>();
         students.add(new Student(1, UUID.randomUUID(), "Username", "Lastname", "Sociology", "Radio_electronics", new Group("SS_11"),
                 new HashSet<>(List.of(new Subject("IT", SubjectType.COMPULSORY), new Subject("Chemistry", SubjectType.COMPULSORY)))));
 
-        when(teacherService.viewEnrolledStudents(randomUuid)).thenReturn(students);
+        when(teacherService.viewEnrolledStudents(teacherId)).thenReturn(students);
 
-        teacherService.viewEnrolledStudents(randomUuid);
+        teacherService.viewEnrolledStudents(teacherId);
 
-        verify(teacherService, times(1)).viewEnrolledStudents(randomUuid);
+        verify(teacherService, times(1)).viewEnrolledStudents(teacherId);
     }
 
     @Test
     void evaluateStudent_shouldEvaluateStudent() {
-        String teacherUuid = UUID.randomUUID().toString();
         String studentUuid = UUID.randomUUID().toString();
 
         HashMap<Subject, List<Integer>> gradesForSubject = new HashMap<>();
         List<Integer> grades = List.of(90, 95, 75);
         gradesForSubject.put(new Subject("Math"), grades);
 
-        when(teacherService.evaluateStudent(teacherUuid, studentUuid, grades))
+        when(teacherService.evaluateStudent(teacherId, studentUuid, grades))
                 .thenReturn(gradesForSubject);
 
-        teacherService.evaluateStudent(teacherUuid, studentUuid, grades);
+        teacherService.evaluateStudent(teacherId, studentUuid, grades);
 
-        verify(teacherService, times(1)).evaluateStudent(teacherUuid, studentUuid, grades);
+        verify(teacherService, times(1)).evaluateStudent(teacherId, studentUuid, grades);
     }
 
     @Test
@@ -101,16 +107,15 @@ class TeacherControllerTest {
 
     @Test
     void addTeacherToGroup() {
-        String randomUuid = UUID.randomUUID().toString();
         String group = "SP_11";
-        Teacher teacher = new Teacher(1, UUID.fromString(randomUuid), "firstName", "lastName",
+        Teacher teacher = new Teacher(1, UUID.fromString(teacherId), "firstName", "lastName",
                 new Subject("IT"));
 
-        when(teacherService.assignTeacherToGroup(randomUuid, group)).thenReturn(teacher);
+        when(teacherService.assignTeacherToGroup(teacherId, group)).thenReturn(teacher);
 
-        teacherService.assignTeacherToGroup(randomUuid, group);
+        teacherService.assignTeacherToGroup(teacherId, group);
 
-        verify(teacherService, times(1)).assignTeacherToGroup(randomUuid, group);
+        verify(teacherService, times(1)).assignTeacherToGroup(teacherId, group);
     }
 
     @Test
@@ -129,15 +134,14 @@ class TeacherControllerTest {
 
     @Test
     void removeTeacherFromGroup() {
-        String randomUuid = UUID.randomUUID().toString();
         String group = "REE_11";
         Teacher teacher = new Teacher(1, UUID.randomUUID(), "firstName", "lastName",
                 new Subject("Math"));
 
-        when(teacherService.removeTeacherFromGroup(randomUuid, group)).thenReturn(teacher);
+        when(teacherService.removeTeacherFromGroup(teacherId, group)).thenReturn(teacher);
 
-        teacherService.removeTeacherFromGroup(randomUuid, group);
+        teacherService.removeTeacherFromGroup(teacherId, group);
 
-        verify(teacherService, times(1)).removeTeacherFromGroup(randomUuid, group);
+        verify(teacherService, times(1)).removeTeacherFromGroup(teacherId, group);
     }
 }

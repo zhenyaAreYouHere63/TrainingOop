@@ -19,20 +19,7 @@ public class TeacherMapperImpl implements TeacherMapper {
                 mapSubjectDtoToSubject(teacherDto.subject()));
     }
 
-    @Override
-    public TeacherDto mapTeacherToTeacherDto(Teacher teacher) {
-        return new TeacherDto(
-                teacher.getFirstName(),
-                teacher.getLastName(),
-                mapSubjectToSubjectDto(teacher.getSubject())
-        );
-    }
-
     private Subject mapSubjectDtoToSubject(SubjectDtoForTeacher subject) {
         return new Subject(subject.subject());
-    }
-
-    private SubjectDtoForTeacher mapSubjectToSubjectDto(Subject subject) {
-        return new SubjectDtoForTeacher(subject.getName());
     }
 }

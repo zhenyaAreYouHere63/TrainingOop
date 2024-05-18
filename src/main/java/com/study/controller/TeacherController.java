@@ -11,7 +11,11 @@ import com.study.mapper.TeacherMapper;
 import com.study.service.TeacherService;
 import com.study.service.impl.TeacherServiceImpl;
 import com.study.service.validation.IdValidator;
-import java.util.*;
+import java.util.Set;
+import java.util.List;
+import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TeacherController implements IdValidator {
     private TeacherService teacherService;
