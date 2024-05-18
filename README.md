@@ -1,19 +1,30 @@
-# Облік навчання студентів
- Треба створити консольну програму для управління процесом навчання студентів та їх результатами.
- 
-Кожен студент може мати ім'я, прізвище, факультет, спеціальність, група, список предметів,
-які він відвідує та відповідні оцінки за предмети.
+## Student Learning Management System
 
-У студента є обов'язкові предмети і вибіркові. Обов'язкові предмети мають бути закріплені за групою
-по замовчуванюю.
+Created a console application to manage the learning process of students and their results.
+Each student can have a first name, last name, faculty, specialty, group, a list of subjects they attend, and
+corresponding grades for those subjects.  
+Students have compulsory and optional subjects.
+Each subject can be taught by several teachers, but in one group, a subject is taught by only one teacher.
 
-Кожен предмет може вести декілька викладачів, але в одній групі предмет веде лише 1 викладач.
+A student can:
+- View the entire list of subjects and enroll in a maximum of 3 optional subjects.
+- View the list of subjects they attend, sorted by different fields.
+- View their grades and calculate their average grade.
 
-Студент може:
-- Подивитися весь список предметів за записатися максимум на 3 вибіркові предмети.
-- Подивитися список предметів, які він відвідує, сортуючи за різними полями.
-- Подивитися свої оцінки та отримати середній бал.
+  A teacher can:
+- View who is enrolled in their subject.
+- Assign grades to students.
 
-Викладач може: 
-- Подивитися, хто записаний до нього на предмет.
-- Виставити оцінки студентам.
+## Requirements for launching the application
+
+- Java 21
+- Maven
+
+## Launch the application
+
+1) Save the application to your computer
+2) Install Java 21 and Maven on your computer
+3) Clean up the project using the command: mvn clean
+4) To compile and build project use the command: mvn package
+5) Run the program using the following command:
+  java -cp target/student_management-1.0-SNAPSHOT.jar com.study.Menu
